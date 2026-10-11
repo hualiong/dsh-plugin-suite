@@ -1,0 +1,41 @@
+# @hualiong/dsh-plugin-suite bundle layer.
+#
+# One install unit, three independent component rows. Each row names the
+# component package that owns it, so the plugin detail page reads that
+# package's own title, description and icon instead of this bundle's.
+#
+# Rows are ordinary loader entries: each one can be disabled, re-enabled or
+# deleted on its own (the plugin manager writes that into the profile patch
+# file), and each browser half is loaded independently by its own package.
+#
+# The OAuth MCP bridge ships one disabled example row. Every OAuth connection
+# carries its own server URL and credential reference, so add one row per
+# server — either here, in the profile patch file, or straight from the MCP
+# Manager panel — with the bridge's own keys:
+#
+#   - insert:
+#       - id: oauth-mcp-example
+#         name: '@hualiong/dsh-oauth-mcp-client'
+#         config:
+#           serverName: example
+#           url: https://mcp.example.com/mcp
+#           credentialRef: EXAMPLE_MCP_OAUTH
+#           failOnStartupError: false
+- insert:
+    - id: mcp-manager
+      name: '@hualiong/dsh-mcp-manager'
+    - id: chameleon-session-delete
+      name: '@hualiong/dsh-session-delete'
+    # Disabled on purpose: installing the bundle must not open any OAuth flow.
+    # Enable it (and set your own serverName/url/credentialRef) from the plugin
+    # detail page or a profile patch layer.
+    - id: oauth-mcp-cloudflare
+      name: '@hualiong/dsh-oauth-mcp-client'
+      disabled: true
+      config:
+        serverName: Cloudflare
+        url: https://mcp.cloudflare.com/mcp
+        credentialRef: CLOUDFLARE_MCP_OAUTH
+        callbackPort: 45871
+        authorizationTimeoutMs: 600000
+        failOnStartupError: false

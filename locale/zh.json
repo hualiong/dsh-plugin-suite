@@ -1,0 +1,6 @@
+{
+  "meta": {
+    "title": "DSH 插件套件",
+    "description": "一个安装单元，三个相互独立的组件：MCP 管理器面板、OAuth MCP 桥接、会话删除界面。"
+  }
+}

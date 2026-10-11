@@ -1,0 +1,43 @@
+{
+  "name": "@hualiong/dsh-plugin-suite",
+  "version": "1.1.0",
+  "description": "One installable DSH bundle, three independent plugins: the MCP Manager panel, the OAuth-enabled Streamable HTTP MCP client bridge, and the Session Delete UI.",
+  "type": "module",
+  "license": "MIT",
+  "keywords": [
+    "deepseek-harness",
+    "dsh-plugin",
+    "dsh-bundle",
+    "mcp",
+    "mcp-manager",
+    "oauth",
+    "session-delete"
+  ],
+  "files": [
+    "cordis.patch.yml",
+    "locale/",
+    "README.md"
+  ],
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    }
+  },
+  "dependencies": {
+    "@hualiong/dsh-mcp-manager": "^0.1.6",
+    "@hualiong/dsh-oauth-mcp-client": "^0.1.1",
+    "@hualiong/dsh-session-delete": "^0.3.5"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hualiong/dsh-plugin-suite.git"
+  },
+  "homepage": "https://github.com/hualiong/dsh-plugin-suite#readme",
+  "bugs": {
+    "url": "https://github.com/hualiong/dsh-plugin-suite/issues"
+  },
+  "author": "hualiong",
+  "publishConfig": {
+    "access": "public"
+  }
+}

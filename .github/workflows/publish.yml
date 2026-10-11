@@ -1,0 +1,66 @@
+name: Publish to npm
+
+# First release (v1.1.0) goes out through the NPM_TOKEN secret; after the
+# package exists on npm and its trusted publisher is bound, this file is
+# switched to the OIDC/trusted-publishing form (no secret at all).
+
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  # `npm publish --provenance` signs the statement with the workflow's OIDC
+  # token, so this must be writable even while publishing authenticates with
+  # a token.
+  id-token: write
+
+jobs:
+  npm:
+    runs-on: ubuntu-latest
+    env:
+      NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          registry-url: https://registry.npmjs.org
+
+      - name: Use the newest npm
+        run: npm install -g npm@latest
+
+      - name: Validate bundle contents
+        run: |
+          node --input-type=commonjs -e "
+            const fs = require('node:fs');
+            const required = ['cordis.patch.yml', 'locale/en.json', 'locale/zh.json', 'README.md', 'LICENSE'];
+            for (const file of required) {
+              if (!fs.existsSync(file)) { console.error('missing ' + file); process.exit(1); }
+            }
+            const patch = fs.readFileSync('cordis.patch.yml', 'utf8');
+            const rows = (patch.match(/name: '@hualiong\//g) || []).length;
+            if (rows < 3) { console.error('expected 3 component rows, found ' + rows); process.exit(1); }
+            console.log('bundle ok: ' + rows + ' component rows');
+          "
+
+      - name: Tag must match package.json
+        if: startsWith(github.ref, 'refs/tags/')
+        run: test "v$(node -p "require('./package.json').version")" = "${GITHUB_REF_NAME}"
+
+      - name: Skip when this version is already published
+        id: published
+        run: |
+          version="$(node -p "require('./package.json').version")"
+          if npm view "$(node -p "require('./package.json').name")@${version}" version >/dev/null 2>&1; then
+            echo "already published: ${version}"
+            echo "skip=true" >> "${GITHUB_OUTPUT}"
+          else
+            echo "skip=false" >> "${GITHUB_OUTPUT}"
+          fi
+
+      - name: Publish
+        if: steps.published.outputs.skip != 'true'
+        run: npm publish --access public --provenance
