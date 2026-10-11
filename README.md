@@ -36,21 +36,26 @@ profile 的 `package.json`：
 ```jsonc
 {
   "dependencies": {
-    "@hualiong/dsh-plugin-suite": "link:C:/Users/64261/Desktop/Workspace/dsh-plugin-suite",
-    // 组件包也随套件一起声明（link 或版本号皆可，指向同一份安装）
-    "@hualiong/dsh-mcp-manager": "link:C:/Users/64261/Desktop/Workspace/dsh-mcp-manager",
-    "@hualiong/dsh-oauth-mcp-client": "link:C:/Users/64261/Desktop/Workspace/dsh-oauth-mcp-client",
-    "@hualiong/dsh-session-delete": "link:C:/Users/64261/Desktop/Workspace/dsh-session-delete"
+    "@hualiong/dsh-plugin-suite": "link:C:/Users/64261/Desktop/Workspace/dsh-plugin-suite"
   },
   "dsh": { "profile": { "bundles": [ /* …, */ "@hualiong/dsh-plugin-suite" ] } }
 }
 ```
 
 ```powershell
+# 三个组件包由本包声明为 dependencies，先装进本包自己的 node_modules
+pnpm install --dir C:/Users/64261/Desktop/Workspace/dsh-plugin-suite
 dsh plugin --profile desktop install     # 或 pnpm install（profile 目录内）
 ```
 
 `bundles` 里的顺序即组合顺序；本包自带 `cordis.patch.yml` 会在其中插入下面三条行。
+
+profile 只依赖本包即可，**不要再单独依赖三个组件包**：
+
+- 运行时按「已选中 bundle 的依赖闭包」解析组件（`@deepseek-ai/dsh-app-boot/lib/index.js:819-822` 的 `collectProfileScopePackages`；请求按声明者目录查找，见 `profile-resolution-bootstrap.js:205-211` 的 `packageSearchPaths`），所以本包 `node_modules` 里的三份副本就够用。
+- 插件页的「已安装」列表 = `dsh.profile.bundles` ∪ profile 的 `dependencies` ∪ 安装自带依赖（`@deepseek-ai/dsh-plugin-manager/lib/index.js:1459-1469`）。凡是声明了 `dsh.bundle.patch` 的依赖都会占一张卡 —— 在 profile 里再依赖三个组件包，插件页就会多出三张卡（且开关处于「未选中」状态）。
+- 改动 profile 的 `dependencies` 后必须**重启 DSH**：运行时解析器拒绝热替换，会报 `profile resolution: removing local package … requires a process restart`（`profile-resolution-bootstrap.js:258`）。
+- 想让三个组件的**本地源码改动即时生效**时，把三条 `link:` 加回 profile 的 `dependencies`（插件页会重新出现那三张卡），改完再删掉。
 
 ## 行长什么样
 
