@@ -1,6 +1,6 @@
 {
   "name": "@hualiong/dsh-plugin-suite",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "One installable DSH bundle, three independent plugins: the MCP Manager panel, the OAuth-enabled Streamable HTTP MCP client bridge, and the Session Delete UI.",
   "type": "module",
   "license": "MIT",
@@ -26,7 +26,7 @@
   "dependencies": {
     "@hualiong/dsh-mcp-manager": "^0.1.6",
     "@hualiong/dsh-oauth-mcp-client": "^0.1.1",
-    "@hualiong/dsh-session-delete": "^0.3.5"
+    "@hualiong/dsh-session-delete": "^0.3.6"
   },
   "repository": {
     "type": "git",

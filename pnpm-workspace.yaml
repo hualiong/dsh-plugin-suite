@@ -2,3 +2,4 @@ minimumReleaseAgeExclude:
   - '@hualiong/dsh-mcp-manager@0.1.6'
   - '@hualiong/dsh-oauth-mcp-client@0.1.1'
   - '@hualiong/dsh-session-delete@0.3.5'
+  - '@hualiong/dsh-session-delete@0.3.6'

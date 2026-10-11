@@ -128,8 +128,8 @@ DSH 读取显示元数据的方式是：先把 `${包名}/locale/en.json` 当作
 | --- | --- | --- |
 | `@hualiong/dsh-mcp-manager` | **已发布 `0.1.6`**（`0.1.5` 为历史版本） | `publish.yml` 的 npm trusted publishing（OIDC）；CI run `38121187747` 成功 |
 | `@hualiong/dsh-oauth-mcp-client` | **已发布 `0.1.1`**（`0.1.0` 为历史版本） | `publish.yml` 的 npm trusted publishing（OIDC）；CI run `38121182396` 成功 |
-| `@hualiong/dsh-session-delete` | **已发布 `0.3.5`**（`0.3.3`、`0.3.4` 为历史版本） | `publish.yml` 的 npm trusted publishing（OIDC）；CI run `38118548308` 成功 |
-| `@hualiong/dsh-plugin-suite` | **已发布 `1.1.0`** | 首发 CI run `38121812115` 成功（当时用一次性 `NPM_TOKEN` + `id-token: write` 签出 provenance）；workflow 随后已切成 OIDC 并删掉 secret |
+| `@hualiong/dsh-session-delete` | **已发布 `0.3.6`**（`0.3.3`、`0.3.4`、`0.3.5` 为历史版本） | `publish.yml` 的 npm trusted publishing（OIDC）；CI run `38123210607` 成功 |
+| `@hualiong/dsh-plugin-suite` | **已发布 `1.1.1`**（`1.1.0` 为历史版本） | `publish.yml` 的 npm trusted publishing（OIDC） |
 
 四个包的 workflow 现在**都是 OIDC 路线**（无任何 secret，四个仓库的 `gh secret list` 均为空）：
 

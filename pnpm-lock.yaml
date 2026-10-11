@@ -15,8 +15,8 @@ importers:
         specifier: ^0.1.1
         version: 0.1.1(@deepseek-ai/cordis@4.0.4)
       '@hualiong/dsh-session-delete':
-        specifier: ^0.3.5
-        version: 0.3.5
+        specifier: ^0.3.6
+        version: 0.3.6(@deepseek-ai/cordis@4.0.4)
 
 packages:
 
@@ -34,6 +34,11 @@ packages:
 
   '@deepseek-ai/cosmokit@1.8.5':
     resolution: {integrity: sha512-LXsrlem9z8dq4sLflj2yuCuYX7KqhdzF5hZly3eZyuTo8d6oDSOXuEgC5DbQWKW+lksm6zmOutQLsP/ma6wR6A==}
+
+  '@deepseek-ai/dsh-home-paths@0.2.0-rc.2':
+    resolution: {integrity: sha512-n4O5C9pNIVWbBklB5RzSTc3kr9hmUnDlZ6Leqj3TIk+CO593DTAmDGTt0rHMQe8H+1Ur+Jqj9Hqgsug/WRkkvQ==}
+    peerDependencies:
+      '@deepseek-ai/cordis': ~4.0.4
 
   '@deepseek-ai/schemastery@3.18.4':
     resolution: {integrity: sha512-SSXO6tYuyrIqKVbmOnIq0s+riUywYzouFMcnBluHF9n4KMo2G8HvEzhCYj6pj2617/glOjbJuVInJ9hfONsjkg==}
@@ -63,8 +68,8 @@ packages:
       '@deepseek-ai/dsh-tools':
         optional: true
 
-  '@hualiong/dsh-session-delete@0.3.5':
-    resolution: {integrity: sha512-w5RvriybHFboWFi/2HvJgCvXpAQ5g4jM6e+UHqC2p6RXXWMLuZzM0MiQ6t+XedGeVpwQPSexRidHynxb4X+JKQ==}
+  '@hualiong/dsh-session-delete@0.3.6':
+    resolution: {integrity: sha512-FDFhCwvXUX22O1I45pt2JYN9rGFjguIEJQYq4wDgVj1wrBrSFvb3cl2my6FH6jfzs78l2hTWohLyqmIipuipPQ==}
     engines: {node: '>=20'}
 
   '@modelcontextprotocol/sdk@1.29.0':
@@ -450,6 +455,10 @@ snapshots:
 
   '@deepseek-ai/cosmokit@1.8.5': {}
 
+  '@deepseek-ai/dsh-home-paths@0.2.0-rc.2(@deepseek-ai/cordis@4.0.4)':
+    dependencies:
+      '@deepseek-ai/cordis': 4.0.4
+
   '@deepseek-ai/schemastery@3.18.4':
     dependencies:
       '@deepseek-ai/cosmokit': 1.8.5
@@ -473,7 +482,11 @@ snapshots:
       - '@cfworker/json-schema'
       - supports-color
 
-  '@hualiong/dsh-session-delete@0.3.5': {}
+  '@hualiong/dsh-session-delete@0.3.6(@deepseek-ai/cordis@4.0.4)':
+    dependencies:
+      '@deepseek-ai/dsh-home-paths': 0.2.0-rc.2(@deepseek-ai/cordis@4.0.4)
+    transitivePeerDependencies:
+      - '@deepseek-ai/cordis'
 
   '@modelcontextprotocol/sdk@1.29.0(zod@4.6.5)':
     dependencies:
