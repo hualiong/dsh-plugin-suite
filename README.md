@@ -124,9 +124,9 @@ DSH 读取显示元数据的方式是：先把 `${包名}/locale/en.json` 当作
 | `@hualiong/dsh-mcp-manager` | **已发布 `0.1.6`**（`0.1.5` 为历史版本） | `publish.yml` 的 npm trusted publishing（OIDC）；CI run `38121187747` 成功 |
 | `@hualiong/dsh-oauth-mcp-client` | **已发布 `0.1.1`**（`0.1.0` 为历史版本） | `publish.yml` 的 npm trusted publishing（OIDC）；CI run `38121182396` 成功 |
 | `@hualiong/dsh-session-delete` | **已发布 `0.3.5`**（`0.3.3`、`0.3.4` 为历史版本） | `publish.yml` 的 npm trusted publishing（OIDC）；CI run `38118548308` 成功 |
-| `@hualiong/dsh-plugin-suite` | 未发布 | 依赖 `^0.1.5` / `^0.1.0` / `^0.3.4` 均已就位，可直接发 `1.1.0` |
+| `@hualiong/dsh-plugin-suite` | **已发布 `1.1.0`** | 首发 CI run `38121812115` 成功（当时用一次性 `NPM_TOKEN` + `id-token: write` 签出 provenance）；workflow 随后已切成 OIDC 并删掉 secret |
 
-三个组件的 workflow 现在**都是 OIDC 路线**（无任何 secret，`gh secret list` 为空）：
+四个包的 workflow 现在**都是 OIDC 路线**（无任何 secret，四个仓库的 `gh secret list` 均为空）：
 
 ```yaml
 on:
@@ -151,6 +151,9 @@ git -C dsh-mcp-manager push origin fix/dsh-0.2.0-rc.2 v0.1.6
 git -C dsh-oauth-mcp-client tag v0.1.1
 git -C dsh-oauth-mcp-client push origin main v0.1.1
 
+git -C dsh-plugin-suite tag v1.1.0
+git -C dsh-plugin-suite push origin main v1.1.0
+
 gh run watch --repo hualiong/dsh-mcp-manager $(gh run list --repo hualiong/dsh-mcp-manager --limit 1 --json databaseId -q '.[0].databaseId')
 ```
 
@@ -159,6 +162,8 @@ gh run watch --repo hualiong/dsh-mcp-manager $(gh run list --repo hualiong/dsh-m
 命令行等价物 `npm trust github <包名> --file publish.yml --repo hualiong/<repo> --allow-publish` 也可，
 但它属于账号变更操作、**必须交互式 2FA**（bypass-2FA token 会被 npm 拒绝），只能由账号主人执行一次。
 绑定好之后**不要再配 `NPM_TOKEN` secret**，也不要把 bypass-2FA token 交给 CI。
+（`dsh-mcp-manager`、`dsh-oauth-mcp-client`、`dsh-session-delete` 已绑定；`dsh-plugin-suite` 的 `1.1.0` 是先用一次性
+token 发布的，**绑定它的 trusted publisher 之后，下一次推 tag 才会走 OIDC**。）
 
 `0.1.6` / `0.1.1` 顺带修掉的小瑕疵：
 
@@ -175,7 +180,11 @@ gh run watch --repo hualiong/dsh-mcp-manager $(gh run list --repo hualiong/dsh-m
 发布内容已用 `npm pack --dry-run --json --ignore-scripts` 逐包核对：
 mcp-manager 10 项（`lib/index.js`、`lib/client.js` + 两个 sourcemap、`cordis.patch.yml`、`locale/{en,zh}.json`、LICENSE/README/package.json）、
 oauth 25 项（`lib/**` 的 js/d.ts/map、`dsh-oauth-mcp.cordis.yml`、`locale/{en,zh}.json`、README）、
-session-delete 7 项（`src/{index,client}.js`、`cordis.patch.yml`、`locale/{en,zh}.json`，已无 `icon.svg`）。
+session-delete 7 项（`src/{index,client}.js`、`cordis.patch.yml`、`locale/{en,zh}.json`，已无 `icon.svg`）、
+suite 6 项（`cordis.patch.yml`、`package.json`、`README.md`、`LICENSE`、`locale/{en,zh}.json`）。
+
+一手小坑：**带 token 的 workflow 里 `npm publish --provenance` 同样需要 `id-token: write`**，否则 CI 会以
+`npm error Provenance generation in GitHub Actions requires "write" access to the "id-token" permission` 直接失败。
 
 发布后别人的 profile 只需
 
