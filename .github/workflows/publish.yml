@@ -1,8 +1,9 @@
 name: Publish to npm
 
-# First release (v1.1.0) goes out through the NPM_TOKEN secret; after the
-# package exists on npm and its trusted publisher is bound, this file is
-# switched to the OIDC/trusted-publishing form (no secret at all).
+# Trusted publishing (OIDC): npm authenticates the workflow through GitHub's
+# OIDC token, so no long-lived token and no repository secret is involved.
+# The package's trusted publisher must be bound on npm to this repository and
+# to this file name (publish.yml), with an empty environment name.
 
 on:
   push:
@@ -11,25 +12,24 @@ on:
 
 permissions:
   contents: read
-  # `npm publish --provenance` signs the statement with the workflow's OIDC
-  # token, so this must be writable even while publishing authenticates with
-  # a token.
+  # Required by trusted publishing and by `npm publish --provenance`.
   id-token: write
 
 jobs:
   npm:
     runs-on: ubuntu-latest
-    env:
-      NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
     steps:
       - uses: actions/checkout@v7
 
+      # Deliberately no `registry-url`: it would write an .npmrc holding an
+      # empty `//registry.npmjs.org/:_authToken=${NODE_AUTH_TOKEN}` placeholder,
+      # which shadows the OIDC credential.
       - uses: actions/setup-node@v7
         with:
           node-version: 24
-          registry-url: https://registry.npmjs.org
 
       - name: Use the newest npm
+        # Trusted publishing requires npm >= 11.5.1.
         run: npm install -g npm@latest
 
       - name: Validate bundle contents
