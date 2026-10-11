@@ -129,7 +129,7 @@ DSH 读取显示元数据的方式是：先把 `${包名}/locale/en.json` 当作
 | `@hualiong/dsh-mcp-manager` | **已发布 `0.1.6`**（`0.1.5` 为历史版本） | `publish.yml` 的 npm trusted publishing（OIDC）；CI run `38121187747` 成功 |
 | `@hualiong/dsh-oauth-mcp-client` | **已发布 `0.1.1`**（`0.1.0` 为历史版本） | `publish.yml` 的 npm trusted publishing（OIDC）；CI run `38121182396` 成功 |
 | `@hualiong/dsh-session-delete` | **已发布 `0.3.6`**（`0.3.3`、`0.3.4`、`0.3.5` 为历史版本） | `publish.yml` 的 npm trusted publishing（OIDC）；CI run `38123210607` 成功 |
-| `@hualiong/dsh-plugin-suite` | **已发布 `1.1.1`**（`1.1.0` 为历史版本） | `publish.yml` 的 npm trusted publishing（OIDC） |
+| `@hualiong/dsh-plugin-suite` | **已发布 `1.1.1`**（`1.1.0` 为历史版本） | `publish.yml` 的 npm trusted publishing（OIDC）；CI run `38123393991` 成功 |
 
 四个包的 workflow 现在**都是 OIDC 路线**（无任何 secret，四个仓库的 `gh secret list` 均为空）：
 
@@ -167,8 +167,18 @@ gh run watch --repo hualiong/dsh-mcp-manager $(gh run list --repo hualiong/dsh-m
 命令行等价物 `npm trust github <包名> --file publish.yml --repo hualiong/<repo> --allow-publish` 也可，
 但它属于账号变更操作、**必须交互式 2FA**（bypass-2FA token 会被 npm 拒绝），只能由账号主人执行一次。
 绑定好之后**不要再配 `NPM_TOKEN` secret**，也不要把 bypass-2FA token 交给 CI。
-（`dsh-mcp-manager`、`dsh-oauth-mcp-client`、`dsh-session-delete` 已绑定；`dsh-plugin-suite` 的 `1.1.0` 是先用一次性
-token 发布的，**绑定它的 trusted publisher 之后，下一次推 tag 才会走 OIDC**。）
+（四个包都已绑定 trusted publisher：`dsh-plugin-suite` 的 `1.1.0` 是先用一次性 token 发布的，
+`1.1.1` 起改由 OIDC 发布（CI run `38123393991`，带 provenance），四个仓库的 `gh secret list` 均为空。）
+
+`0.3.6` / `1.1.1` 修掉的问题：
+
+* `dsh-session-delete` 的 host half 在 `src/index.js` 里 `import '@deepseek-ai/dsh-home-paths'`，
+  但该包此前只把它写在 `devDependencies`。源码 checkout（`link:` 安装）能跑，**从 registry 安装时这个依赖不会被装**，
+  Cordis 于是报 `1 entry did not activate chameleon-session-delete (@hualiong/dsh-session-delete): failed to import`
+  （`ERR_MODULE_NOT_FOUND`）。`0.3.6` 把它移进 `dependencies`（`0.2.0-rc.2`），套件的依赖下限同步提到 `^0.3.6`。
+  这个坑只在组件作为套件依赖从 registry 装时才暴露：`link:` 到工作区目录时，工作区自己的 `node_modules` 恰好能解析它。
+  `dsh-mcp-manager` / `dsh-oauth-mcp-client` 不 import 该包，所以一直正常（它们的客户端 half 用的
+  `@deepseek-ai/dsh-client-*`、`@deepseek-ai/cordis`、`react` 由 DSH 运行时的解析表提供）。
 
 `0.1.6` / `0.1.1` 顺带修掉的小瑕疵：
 
