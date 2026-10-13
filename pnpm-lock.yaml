@@ -8,9 +8,12 @@ importers:
 
   .:
     dependencies:
+      '@hualiong/dsh-cost-lite':
+        specifier: link:../dsh-cost-lite
+        version: link:../dsh-cost-lite
       '@hualiong/dsh-mcp-manager':
-        specifier: ^0.1.6
-        version: 0.1.6
+        specifier: ^0.1.7
+        version: 0.1.7
       '@hualiong/dsh-oauth-mcp-client':
         specifier: ^0.1.1
         version: 0.1.1(@deepseek-ai/cordis@4.0.4)
@@ -49,8 +52,8 @@ packages:
     peerDependencies:
       hono: ^4
 
-  '@hualiong/dsh-mcp-manager@0.1.6':
-    resolution: {integrity: sha512-zLkTQVsE3ZvqFbJoWYzplBSbIuURhHvKMt+AIvNjPRWlg5YnYsvleyzM+rp3pL4AK0l7ag5/CgoIp0mHl0ZIVw==}
+  '@hualiong/dsh-mcp-manager@0.1.7':
+    resolution: {integrity: sha512-JBk6IDnvBdNNE/MNIfgQTGP0TA2u9wnpZfASdP6z28OAD1DnWHRSIx2Y+JpEK8SIvDfFmZ9dNJx4gup05IhVLA==}
 
   '@hualiong/dsh-oauth-mcp-client@0.1.1':
     resolution: {integrity: sha512-cK9IfH+RHPFYhfOswFKyUaH1/cVAvSm9mKW7iymhiEDvO4q8lRCC4YAADahNlmH5CGVAGeZ+LPz3QAPTFI0eIw==}
@@ -468,7 +471,7 @@ snapshots:
     dependencies:
       hono: 4.13.13
 
-  '@hualiong/dsh-mcp-manager@0.1.6':
+  '@hualiong/dsh-mcp-manager@0.1.7':
     dependencies:
       js-yaml: 4.3.2
 

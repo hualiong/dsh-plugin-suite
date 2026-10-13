@@ -1,6 +1,6 @@
 # @hualiong/dsh-plugin-suite bundle layer.
 #
-# One install unit, three independent component rows. Each row names the
+# One install unit, four independent component rows. Each row names the
 # component package that owns it, so the plugin detail page reads that
 # package's own title, description and icon instead of this bundle's.
 #
@@ -26,6 +26,10 @@
       name: '@hualiong/dsh-mcp-manager'
     - id: chameleon-session-delete
       name: '@hualiong/dsh-session-delete'
+    # Real-money cost badges (session + per-turn); host half serves
+    # GET /__cost-lite/usage, client half adds the two pills.
+    - id: cost-lite
+      name: '@hualiong/dsh-cost-lite'
     # Disabled on purpose: installing the bundle must not open any OAuth flow.
     # Enable it (and set your own serverName/url/credentialRef) from the plugin
     # detail page or a profile patch layer.

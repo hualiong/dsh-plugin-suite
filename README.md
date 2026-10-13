@@ -1,14 +1,15 @@
 # @hualiong/dsh-plugin-suite
 
-一个**安装单元 + 一层补丁**：本包自身不含任何代码，只声明三个原本独立的 DSH 插件为依赖，并把它们各自的行插入 profile 的组合树。
+一个**安装单元 + 一层补丁**：本包自身不含任何代码，只声明四个原本独立的 DSH 插件为依赖，并把它们各自的行插入 profile 的组合树。
 
 | 行 id | 组件包 | 宿主 | 浏览器 UI |
 | --- | --- | --- | --- |
 | `mcp-manager` | `@hualiong/dsh-mcp-manager` | MCP 面板的 HTTP/SSE 载体，读写 profile patch 文件 | 设置面板 “MCP” 小节 |
 | `chameleon-session-delete` | `@hualiong/dsh-session-delete` | `POST /__chameleon/session/delete` 及其删除链路 | 侧栏会话菜单项 + 确认弹窗 |
+| `cost-lite` | `@hualiong/dsh-cost-lite` | `GET /__cost-lite/usage`（按会话折叠 `assistant/message` 用量并计价） | 输入框停靠栏的会话徽标 + 每条助手消息操作行的单轮徽标 |
 | `oauth-mcp-cloudflare`（默认 `disabled: true`） | `@hualiong/dsh-oauth-mcp-client` | OAuth 授权的 Streamable HTTP MCP 客户端桥，**每个服务器一行** | 无 |
 
-三个组件仍然是各自独立的包、各自拥有自己的 `./client` 浏览器产物、各自的 fiber：可单独启停、删除或重排，互不影响。
+四个组件仍然是各自独立的包、各自拥有自己的 `./client` 浏览器产物、各自的 fiber：可单独启停、删除或重排，互不影响。
 
 ## 为什么是「聚合包」而不是「单包合并」
 
@@ -22,8 +23,8 @@ DSH 插件详细页的组件行元数据是按**该行声明的模块标识**去
 ## 目录
 
 ```
-package.json        依赖三个组件包；dsh.bundle.patch = ./cordis.patch.yml；无 icon（用默认图标）
-cordis.patch.yml    bundle 层：一个 insert，插入三条行（oauth 行默认 disabled）
+package.json        依赖四个组件包；dsh.bundle.patch = ./cordis.patch.yml；无 icon（用默认图标）
+cordis.patch.yml    bundle 层：一个 insert，插入四条行（oauth 行默认 disabled）
 locale/en.json      套件卡片的显示名（英文 meta.title / meta.description；锚点文件，必须存在）
 locale/zh.json      套件卡片的显示名（中文）
 README.md
@@ -43,19 +44,20 @@ profile 的 `package.json`：
 ```
 
 ```powershell
-# 三个组件包由本包声明为 dependencies，先装进本包自己的 node_modules
+# 四个组件包由本包声明为 dependencies，先装进本包自己的 node_modules
 pnpm install --dir C:/Users/64261/Desktop/Workspace/dsh-plugin-suite
 dsh plugin --profile desktop install     # 或 pnpm install（profile 目录内）
 ```
 
-`bundles` 里的顺序即组合顺序；本包自带 `cordis.patch.yml` 会在其中插入下面三条行。
+`bundles` 里的顺序即组合顺序；本包自带 `cordis.patch.yml` 会在其中插入下面四条行。
 
-profile 只依赖本包即可，**不要再单独依赖三个组件包**：
+profile 只依赖本包即可，**不要再单独依赖四个组件包**：
 
-- 运行时按「已选中 bundle 的依赖闭包」解析组件（`@deepseek-ai/dsh-app-boot/lib/index.js:819-822` 的 `collectProfileScopePackages`；请求按声明者目录查找，见 `profile-resolution-bootstrap.js:205-211` 的 `packageSearchPaths`），所以本包 `node_modules` 里的三份副本就够用。
-- 插件页的「已安装」列表 = `dsh.profile.bundles` ∪ profile 的 `dependencies` ∪ 安装自带依赖（`@deepseek-ai/dsh-plugin-manager/lib/index.js:1459-1469`）。凡是声明了 `dsh.bundle.patch` 的依赖都会占一张卡 —— 在 profile 里再依赖三个组件包，插件页就会多出三张卡（且开关处于「未选中」状态）。
+- 运行时按「已选中 bundle 的依赖闭包」解析组件（`@deepseek-ai/dsh-app-boot/lib/index.js:819-822` 的 `collectProfileScopePackages`；请求按声明者目录查找，见 `profile-resolution-bootstrap.js:205-211` 的 `packageSearchPaths`），所以本包 `node_modules` 里的四份副本就够用。
+- 插件页的「已安装」列表 = `dsh.profile.bundles` ∪ profile 的 `dependencies` ∪ 安装自带依赖（`@deepseek-ai/dsh-plugin-manager/lib/index.js:1459-1469`）。凡是声明了 `dsh.bundle.patch` 的依赖都会占一张卡 —— 在 profile 里再依赖四个组件包，插件页就会多出四张卡（且开关处于「未选中」状态）。
 - 改动 profile 的 `dependencies` 后必须**重启 DSH**：运行时解析器拒绝热替换，会报 `profile resolution: removing local package … requires a process restart`（`profile-resolution-bootstrap.js:258`）。
-- 想让三个组件的**本地源码改动即时生效**时，把三条 `link:` 加回 profile 的 `dependencies`（插件页会重新出现那三张卡），改完再删掉。
+- 本机工作区里 `dsh-cost-lite` **尚未发布到 registry**，所以套件对它的依赖写成 `link:../dsh-cost-lite`（其余三个是语义版本）。发布该组件包后把它换回 `^0.1.0` 即可，其余流程不变。
+- 想让组件的**本地源码改动即时生效**时，把对应的 `link:` 加回 profile 的 `dependencies`（插件页会重新出现那张卡），改完再删掉。
 
 ## 行长什么样
 
@@ -66,6 +68,9 @@ profile 只依赖本包即可，**不要再单独依赖三个组件包**：
       name: '@hualiong/dsh-mcp-manager'
     - id: chameleon-session-delete
       name: '@hualiong/dsh-session-delete'
+    # 真实花费徽标：会话级 + 单轮各一个，宿主半边提供 GET /__cost-lite/usage
+    - id: cost-lite
+      name: '@hualiong/dsh-cost-lite'
     # 每个 OAuth 服务器一行；默认禁用，绝不因「装了套件」而触发授权流程
     - id: oauth-mcp-cloudflare
       name: '@hualiong/dsh-oauth-mcp-client'
@@ -98,7 +103,7 @@ profile 自己的 patch 文件按 id 覆盖这些行来补配置 / 打开开关�
 
 DSH 读取显示元数据的方式是：先把 `${包名}/locale/en.json` 当作**锚点**解析，再扫描该文件所在目录下所有 `*.json` 作为各语言词典；
 显示时 `ctx.locale.resolveText(text)` 以 **`en` 键作为兜底种子**，再沿当前语言的回退链查找。
-所以四个包都提供规范的 `locale/en.json`（英文）+ `locale/zh.json`（中文），并按当前界面语言显示：
+所以五个包都提供规范的 `locale/en.json`（英文）+ `locale/zh.json`（中文），并按当前界面语言显示：
 
 | 包 | 详细页标题（zh / en） | 图标 |
 | --- | --- | --- |
@@ -106,12 +111,13 @@ DSH 读取显示元数据的方式是：先把 `${包名}/locale/en.json` 当作
 | `@hualiong/dsh-mcp-manager` | MCP 管理器 / MCP Manager | 无（默认图标） |
 | `@hualiong/dsh-oauth-mcp-client` | OAuth MCP 客户端 / OAuth MCP Client | 无（默认图标） |
 | `@hualiong/dsh-session-delete` | 会话删除 / Session Delete | 无（默认图标） |
+| `@hualiong/dsh-cost-lite` | 费用计量 / Cost Meter | 无（默认图标） |
 
 * 改标题/描述：编辑对应包的 `locale/en.json`（英文）与 `locale/zh.json`（中文）的 `meta.title` / `meta.description`；
   新增语言 = 在同目录再加一份 `<lang>.json`（文件名必须是合法语言 id），`en` 必须始终存在；
-* 这些文件必须能被解析到 —— 三个组件包导出 `"./package.json"`、`"./locale/en.json"`、`"./locale/zh.json"`；
+* 这些文件必须能被解析到 —— 四个组件包导出 `"./package.json"`、`"./locale/en.json"`、`"./locale/zh.json"`；
   套件包**有意不声明 `exports`**，因此 `${包名}/package.json`、`${包名}/locale/*.json` 与 `${包名}/cordis.patch.yml` 都能按路径解析；
-* 四个包都**不声明 `icon`**，所以卡片与每个组件行都用默认图标。
+* 五个包都**不声明 `icon`**，所以卡片与每个组件行都用默认图标。
 
 ## 单独启停 / 卸载
 
@@ -122,14 +128,15 @@ DSH 读取显示元数据的方式是：先把 `${包名}/locale/en.json` 当作
 
 ## 发布（npm）
 
-四个包的 registry 现状（查询于 2026-10-11）：
+五个包的 registry 现状（前四条查询于 2026-10-11）：
 
 | 包 | registry | 发布方式 |
 | --- | --- | --- |
 | `@hualiong/dsh-mcp-manager` | **已发布 `0.1.6`**（`0.1.5` 为历史版本） | `publish.yml` 的 npm trusted publishing（OIDC）；CI run `38121187747` 成功 |
 | `@hualiong/dsh-oauth-mcp-client` | **已发布 `0.1.1`**（`0.1.0` 为历史版本） | `publish.yml` 的 npm trusted publishing（OIDC）；CI run `38121182396` 成功 |
 | `@hualiong/dsh-session-delete` | **已发布 `0.3.6`**（`0.3.3`、`0.3.4`、`0.3.5` 为历史版本） | `publish.yml` 的 npm trusted publishing（OIDC）；CI run `38123210607` 成功 |
-| `@hualiong/dsh-plugin-suite` | **已发布 `1.1.1`**（`1.1.0` 为历史版本） | `publish.yml` 的 npm trusted publishing（OIDC）；CI run `38123393991` 成功 |
+| `@hualiong/dsh-cost-lite` | **未发布**（工作区里由套件以 `link:../dsh-cost-lite` 引用，`0.1.0`） | 待定：该目录还不是 git 仓库；发布前先 `git init` + `publish.yml`，再把套件的 `link:` 换回 `^0.1.0` |
+| `@hualiong/dsh-plugin-suite` | **已发布 `1.1.1`**（`1.1.0` 为历史版本；`1.2.0` 为加入 `cost-lite` 后的本地版本） | `publish.yml` 的 npm trusted publishing（OIDC）；CI run `38123393991` 成功 |
 
 四个包的 workflow 现在**都是 OIDC 路线**（无任何 secret，四个仓库的 `gh secret list` 均为空）：
 
@@ -210,7 +217,8 @@ suite 6 项（`cordis.patch.yml`、`package.json`、`README.md`、`LICENSE`、`l
 }
 ```
 
-即可 —— 三个组件包会被套件的 `dependencies` 自动拉进来，不必逐个安装。
+即可 —— 三个已发布的组件包会被套件的 `dependencies` 自动拉进来，不必逐个安装；
+`dsh-cost-lite` 目前是 `link:`（未发布），所以本机（或任何 checkout 工作区）需要那个目录同时存在，发布后同样自动拉取。
 
 ## 从原来的三个插件迁移
 
@@ -219,6 +227,7 @@ suite 6 项（`cordis.patch.yml`、`package.json`、`README.md`、`LICENSE`、`l
 | `id: mcp-manager`, `name: '@hualiong/dsh-mcp-manager'` | 同名 id、同一个 `name`（现在由套件插入），profile 覆盖行只提供 `config.patchFile` |
 | `id: chameleon-session-delete`, `name: '@hualiong/dsh-session-delete'` | 同名 id、同一个 `name`（现在由套件插入，原先由该包自己的 patch 插入） |
 | `id: oauth-mcp-cloudflare`, `name: '@hualiong/dsh-oauth-mcp-client'` | 同名 id、同一个 `name`（原先写在 profile 的 `insert:` 里，现在由套件插入并在本 profile 覆盖为 `disabled: false`） |
+| `id: cost-lite`, `name: '@hualiong/dsh-cost-lite'` | 同名 id、同一个 `name`（原先由该包自己的 patch 插入，且 profile 同时依赖该包并把它列进 `bundles`；现在由套件插入、profile 只留一条 `- id: cost-lite` / `disabled: false` 覆盖行） |
 
 ## 验证记录（本机 desktop profile）
 
@@ -239,11 +248,21 @@ suite 6 项（`cordis.patch.yml`、`package.json`、`README.md`、`LICENSE`、`l
   从未在 `package.json` 里声明（该包原本零依赖），一旦从 npm 安装改为 `link:` 指向工作区目录就会
   `ERR_MODULE_NOT_FOUND`。已在 `dsh-session-delete/package.json` 的 `devDependencies` 里补上
   `"@deepseek-ai/dsh-home-paths": "0.2.0-rc.2"` 并 `pnpm install`（与 `dsh-mcp-manager` 的既有约定一致）。
+* `cost-lite` 合入（本包 `1.2.0`）：一次性探针 profile（`bundles = dsh-base + dsh-web-app + 本包`）`--dump-config` 退出码 0，
+  四条行（`mcp-manager`、`chameleon-session-delete`、`cost-lite`、`oauth-mcp-cloudflare` 且 disabled）均来自本包；
+  探针 profile 再加 `- id: cost-lite` / `disabled: false` 覆盖行后重 dump 仍为 0，行序与覆盖结果正确。
+  元数据：`@hualiong/dsh-cost-lite/package.json`、`/locale/{en,zh}.json`、`/client` 从套件与 profile 两个基点都能解析，
+  词典目录只扫出 `en.json` + `zh.json`，中英标题/描述齐备；`npm pack --dry-run` 8 项（`src/*.js`、`cordis.patch.yml`、
+  `locale/{en,zh}.json`、README、LICENSE、package.json）。
+  desktop profile 已改为只依赖本包（`dependencies` 与本包 `bundles` 里的 `@hualiong/dsh-cost-lite` 均已删除，
+  profile patch 只留 `- id: cost-lite` / `disabled: false` 覆盖行），其 `pnpm-lock.yaml` 不再出现该包 ⇒ **需要重启 DSH 才生效**。
 
 ## 已知限制
 
+* `@hualiong/dsh-cost-lite` 尚未发布：本套件对它的依赖是 `link:../dsh-cost-lite`，所以别人从 npm 装本套件时**这个组件装不上**
+  （pnpm 会报找不到该目录/包）。发布该组件包后把依赖换回 `^0.1.0` 即恢复正常。
 * OAuth 桥是「每个服务器一行」，套件里只提供一条**默认禁用**的示例行；启用它需要在 profile patch 里覆盖，或由 MCP 面板写入。
-* 三个组件的 UI 不再共享一个浏览器产物，但 `dsh.client` 的排序只作用于单个包内部：跨组件的加载顺序由各自的 `inject` 决定。
+* 四个组件的 UI 不再共享一个浏览器产物，但 `dsh.client` 的排序只作用于单个包内部：跨组件的加载顺序由各自的 `inject` 决定。
 * 组件内部的日志前缀沿用各组件包自己的前缀（`dsh-mcp-manager(...)` 等）。
 * `@hualiong/dsh-mcp-manager` 的 `lib/` 里只有 `index.js` / `client.js` 与两个 sourcemap，没有 `lib/types/`，
   因此它**不再对外声明类型**（`0.1.6` 起删掉了指向不存在文件的 `types` / `exports[].types`，而不是留一个坏指针）。
