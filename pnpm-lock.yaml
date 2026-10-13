@@ -8,9 +8,6 @@ importers:
 
   .:
     dependencies:
-      '@hualiong/dsh-cost-lite':
-        specifier: link:../dsh-cost-lite
-        version: link:../dsh-cost-lite
       '@hualiong/dsh-mcp-manager':
         specifier: ^0.1.7
         version: 0.1.7
