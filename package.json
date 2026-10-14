@@ -1,7 +1,7 @@
 {
   "name": "@hualiong/dsh-plugin-suite",
-  "version": "1.2.1",
-  "description": "One installable DSH bundle, three independent plugins: the MCP Manager panel, the OAuth-enabled Streamable HTTP MCP client bridge, and the Session Delete UI.",
+  "version": "1.3.0",
+  "description": "One installable DSH bundle, four independent plugins: the MCP Manager panel, the OAuth-enabled Streamable HTTP MCP client bridge, the Session Delete UI, and the per-model session cost meter.",
   "type": "module",
   "license": "MIT",
   "keywords": [
@@ -11,7 +11,8 @@
     "mcp",
     "mcp-manager",
     "oauth",
-    "session-delete"
+    "session-delete",
+    "cost-lite"
   ],
   "files": [
     "cordis.patch.yml",
@@ -24,6 +25,7 @@
     }
   },
   "dependencies": {
+    "@hualiong/dsh-cost-lite": "^0.1.2",
     "@hualiong/dsh-mcp-manager": "^0.1.7",
     "@hualiong/dsh-oauth-mcp-client": "^0.1.1",
     "@hualiong/dsh-session-delete": "^0.3.6"

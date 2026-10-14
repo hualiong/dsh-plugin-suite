@@ -1,6 +1,6 @@
 {
   "meta": {
     "title": "DSH Plugin Suite",
-    "description": "One installable bundle with three independent components: the MCP Manager panel, the OAuth MCP bridge and the Session Delete UI."
+    "description": "One installable bundle with four independent components: the MCP Manager panel, the OAuth MCP bridge, the Session Delete UI and the per-model session cost meter."
   }
 }

@@ -1,6 +1,6 @@
 # @hualiong/dsh-plugin-suite bundle layer.
 #
-# One install unit, three independent component rows. Each row names the
+# One install unit, four independent component rows. Each row names the
 # component package that owns it, so the plugin detail page reads that
 # package's own title, description and icon instead of this bundle's.
 #
@@ -8,10 +8,11 @@
 # deleted on its own (the plugin manager writes that into the profile patch
 # file), and each browser half is loaded independently by its own package.
 #
-# The OAuth MCP bridge ships one disabled example row. Every OAuth connection
+# The OAuth MCP bridge ships one enabled example row. Every OAuth connection
 # carries its own server URL and credential reference, so add one row per
-# server — either here, in the profile patch file, or straight from the MCP
-# Manager panel — with the bridge's own keys:
+# additional server — either here, in the profile patch file, or straight from
+# the MCP Manager panel — with the bridge's own keys. Disable or delete the
+# example row if this machine must not touch the OAuth bridge at all:
 #
 #   - insert:
 #       - id: oauth-mcp-example
@@ -26,12 +27,12 @@
       name: '@hualiong/dsh-mcp-manager'
     - id: chameleon-session-delete
       name: '@hualiong/dsh-session-delete'
-    # Disabled on purpose: installing the bundle must not open any OAuth flow.
-    # Enable it (and set your own serverName/url/credentialRef) from the plugin
-    # detail page or a profile patch layer.
+    # Enabled by default: the bridge is usable right after the bundle is
+    # installed. Point serverName/url/credentialRef at your own server, or set
+    # `disabled: true` on this row so installing the suite never starts an
+    # OAuth flow.
     - id: oauth-mcp-cloudflare
       name: '@hualiong/dsh-oauth-mcp-client'
-      disabled: true
       config:
         serverName: Cloudflare
         url: https://mcp.cloudflare.com/mcp
@@ -39,3 +40,9 @@
         callbackPort: 45871
         authorizationTimeoutMs: 600000
         failOnStartupError: false
+    # Disabled on purpose: the cost meter is opt-in, so installing the bundle
+    # does not change what a session displays. Enable it from the plugin detail
+    # page or from a profile patch layer (`- id: cost-lite` + `disabled: false`).
+    - id: cost-lite
+      name: '@hualiong/dsh-cost-lite'
+      disabled: true
