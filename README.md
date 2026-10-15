@@ -163,7 +163,7 @@ DSH 读取显示元数据的方式是：先把 `${包名}/locale/en.json` 当作
 | `@hualiong/dsh-oauth-mcp-client` | **已发布 `0.1.1`**（`0.1.0` 为历史版本） | `publish.yml` 的 npm trusted publishing（OIDC）；CI run `38121182396` 成功 |
 | `@hualiong/dsh-session-delete` | **已发布 `0.3.6`**（`0.3.3`、`0.3.4`、`0.3.5` 为历史版本） | `publish.yml` 的 npm trusted publishing（OIDC）；CI run `38123210607` 成功 |
 | `@hualiong/dsh-cost-lite` | **已发布 `0.1.2`**（`0.1.1` 为历史版本；独立仓库 `hualiong/dsh-cost-lite`） | `publish.yml` 的 npm trusted publishing（OIDC）；CI run `38591985731` 成功（带 provenance，`logIndex=3251629629`） |
-| `@hualiong/dsh-plugin-suite` | **已发布 `1.3.1`**（`1.1.0`、`1.1.1`、`1.2.1`、`1.3.0` 为历史版本；`1.2.0` 曾误发并撤回） | `publish.yml` 的 npm trusted publishing（OIDC） |
+| `@hualiong/dsh-plugin-suite` | **已发布 `1.3.1`**（`1.1.0`、`1.1.1`、`1.2.1`、`1.3.0` 为历史版本；`1.2.0` 曾误发并撤回） | `publish.yml` 的 npm trusted publishing（OIDC）；CI run `38753032651` 成功（带 provenance，`logIndex=3265795004`） |
 
 五个包的 workflow 现在**都是 OIDC 路线**（无任何 secret，各仓库的 `gh secret list` 均为空）：
 
@@ -282,6 +282,8 @@ suite 6 项（`cordis.patch.yml`、`package.json`、`README.md`、`LICENSE`、`l
   `mcp-manager`、`chameleon-session-delete`、`cost-lite` + `disabled: true`（默认关闭）；
   整份组合树里 **`oauth` 出现 0 次** ⇒ 不再预置任何 MCP 服务器行（服务器行由用户自己加）。探针 profile 已整目录删除。
   `cordis.patch.yml` 里 `name: '@hualiong/` 出现次数 = 3（正好等于真实行数，注释里的示例写成占位符，不参与计数）。
+  发布后（CI run `38753032651`）从 registry 拉下 `1.3.1` 的 tarball 复核：6 个文件与 `npm pack --dry-run` 一致，
+  `cordis.patch.yml` 里只有那三行、**没有任何 `oauth-mcp-*` 行**（`README.md` 里的 Cloudflare 字样只出现在变更说明与用法示例里）。
 * **`1.3.0` 组合层（本机，2026-10-14）**：一次性探针 profile（`dsh suite-verify --from-default-profile web --dump-config` 创建，
   `bundles = dsh-base + dsh-web-app`），`dsh plugin --profile suite-verify add "link:…/dsh-plugin-suite"` 退出码 0，
   随后 `dsh --profile suite-verify --dump-config` 退出码 0，逐行确认本包插入的四行：
