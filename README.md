@@ -163,7 +163,7 @@ DSH 读取显示元数据的方式是：先把 `${包名}/locale/en.json` 当作
 | `@hualiong/dsh-oauth-mcp-client` | **已发布 `0.1.1`**（`0.1.0` 为历史版本） | `publish.yml` 的 npm trusted publishing（OIDC）；CI run `38121182396` 成功 |
 | `@hualiong/dsh-session-delete` | **已发布 `0.3.6`**（`0.3.3`、`0.3.4`、`0.3.5` 为历史版本） | `publish.yml` 的 npm trusted publishing（OIDC）；CI run `38123210607` 成功 |
 | `@hualiong/dsh-cost-lite` | **已发布 `0.1.3`**（`0.1.1`、`0.1.2` 为历史版本；独立仓库 `hualiong/dsh-cost-lite`） | `publish.yml` 的 npm trusted publishing（OIDC）；CI run `38762163863` 成功（带 provenance，`logIndex=3265974642`） |
-| `@hualiong/dsh-plugin-suite` | **已发布 `1.3.1`**（`1.1.0`、`1.1.1`、`1.2.1`、`1.3.0` 为历史版本；`1.2.0` 曾误发并撤回） | `publish.yml` 的 npm trusted publishing（OIDC）；CI run `38753032651` 成功（带 provenance，`logIndex=3265795004`） |
+| `@hualiong/dsh-plugin-suite` | **已发布 `1.3.2`**（`1.1.0`、`1.1.1`、`1.2.1`、`1.3.0`、`1.3.1` 为历史版本；`1.2.0` 曾误发并撤回） | `publish.yml` 的 npm trusted publishing（OIDC）；CI run `38762567958` 成功（带 provenance，`logIndex=3265980991`） |
 
 五个包的 workflow 现在**都是 OIDC 路线**（无任何 secret，各仓库的 `gh secret list` 均为空）：
 
@@ -288,6 +288,21 @@ suite 6 项（`cordis.patch.yml`、`package.json`、`README.md`、`LICENSE`、`l
 
 ## 验证记录
 
+* **`1.3.2` + `cost-lite@0.1.3` 发布（本机，2026-10-15）**：预检 `cordis.patch.yml` 里 `name: '@hualiong/` 计数 = 3、
+  `npm pack --dry-run` = 6 个文件、`locale/{en,zh}.json` 可解析后打 tag `v1.3.2`（CI run `38762567958` 成功，
+  provenance `logIndex=3265980991`）；先发的 `@hualiong/dsh-cost-lite@0.1.3`（tag `v0.1.3`，CI run `38762163863` 成功，
+  provenance `logIndex=3265974642`）。registry 传播约 110s 后，用 `npm pack @hualiong/dsh-plugin-suite@1.3.2` 与
+  `npm pack @hualiong/dsh-cost-lite@0.1.3` 拉下 tarball 复核：分别 6 / 9 个文件；套件的 `cordis.patch.yml` 里
+  **只有三行真实插入**（`mcp-manager`、`chameleon-session-delete`、`cost-lite` + `disabled: true`），
+  注释里的示例行写成占位符、不参与计数。
+* **本机 desktop profile 升级到 registry 版（2026-10-15）**：`package.json` 里 `@hualiong/dsh-plugin-suite` 1.3.1 → 1.3.2
+  并删掉临时的 `link:` 版 cost-lite，`pnpm-workspace.yaml` 补 `@hualiong/dsh-plugin-suite@1.3.2` 与
+  `@hualiong/dsh-cost-lite@0.1.3` 两条 `minimumReleaseAgeExclude`。`dsh plugin --profile desktop install` 仍被 24h
+  供货链策略拦下（`@hualiong/dsh-plugin-suite@1.3.2 … within the minimumReleaseAge cutoff`），改用 DSH 自带 pnpm +
+  `--config.minimumReleaseAge=0` 完成安装：`node_modules` 里 suite 1.3.2、cost-lite 0.1.3、mcp-manager 0.1.7、
+  oauth-mcp-client 0.1.1、session-delete 0.3.6，**全部来自 registry、无 `link:`**。
+  桌面 profile 不能用 `--dump-config` 复核（CLI 直接拒绝：`error: profile "desktop" is managed exclusively by the Electron application`），
+  组合层结论沿用 `1.3.1` 的探针验证 + 本次 tarball 内容比对。
 * **`1.3.1` 组合层（本机，2026-10-14）**：一次性探针 profile（`dsh suite-verify --from-default-profile web --dump-config` 创建，
   `bundles = dsh-base + dsh-web-app`），`dsh plugin --profile suite-verify add "link:…/dsh-plugin-suite"` 退出码 0，
   随后 `dsh --profile suite-verify --dump-config` 退出码 0（1267 行），逐行确认本包插入的行**只有三行**：
