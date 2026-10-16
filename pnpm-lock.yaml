@@ -18,8 +18,8 @@ importers:
         specifier: ^0.1.1
         version: 0.1.1(@deepseek-ai/cordis@4.0.4)
       '@hualiong/dsh-session-delete':
-        specifier: ^0.3.6
-        version: 0.3.6(@deepseek-ai/cordis@4.0.4)
+        specifier: ^0.4.0
+        version: 0.4.0(@deepseek-ai/cordis@4.0.4)(@deepseek-ai/schemastery@3.18.4)
 
 packages:
 
@@ -75,9 +75,17 @@ packages:
       '@deepseek-ai/dsh-tools':
         optional: true
 
-  '@hualiong/dsh-session-delete@0.3.6':
-    resolution: {integrity: sha512-FDFhCwvXUX22O1I45pt2JYN9rGFjguIEJQYq4wDgVj1wrBrSFvb3cl2my6FH6jfzs78l2hTWohLyqmIipuipPQ==}
+  '@hualiong/dsh-session-delete@0.4.0':
+    resolution: {integrity: sha512-jOAclwL00TqM+3ikwQLoGUc9qqzMmx5rSTgkr+nv6XeD6L4gPg0PoPdR9ZKQjzZ61/CnfWXLCqcU9hQeauo6ZA==}
     engines: {node: '>=20'}
+    peerDependencies:
+      '@deepseek-ai/dsh-tools': ^0.2.0-rc.2
+      '@deepseek-ai/schemastery': ^3.18.4
+    peerDependenciesMeta:
+      '@deepseek-ai/dsh-tools':
+        optional: true
+      '@deepseek-ai/schemastery':
+        optional: true
 
   '@modelcontextprotocol/sdk@1.29.0':
     resolution: {integrity: sha512-zo37mZA9hJWpULgkRpowewez1y6ML5GsXJPY8FI0tBBCd77HEvza4jDqRKOXgHNn867PVGCyTdzqpz0izu5ZjQ==}
@@ -491,9 +499,11 @@ snapshots:
       - '@cfworker/json-schema'
       - supports-color
 
-  '@hualiong/dsh-session-delete@0.3.6(@deepseek-ai/cordis@4.0.4)':
+  '@hualiong/dsh-session-delete@0.4.0(@deepseek-ai/cordis@4.0.4)(@deepseek-ai/schemastery@3.18.4)':
     dependencies:
       '@deepseek-ai/dsh-home-paths': 0.2.0-rc.2(@deepseek-ai/cordis@4.0.4)
+    optionalDependencies:
+      '@deepseek-ai/schemastery': 3.18.4
     transitivePeerDependencies:
       - '@deepseek-ai/cordis'
 

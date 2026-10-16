@@ -174,9 +174,9 @@ DSH 读取显示元数据的方式是：先把 `${包名}/locale/en.json` 当作
 | --- | --- | --- |
 | `@hualiong/dsh-mcp-manager` | **已发布 `0.1.7`**（`0.1.5`、`0.1.6` 为历史版本） | `publish.yml` 的 npm trusted publishing（OIDC） |
 | `@hualiong/dsh-oauth-mcp-client` | **已发布 `0.1.1`**（`0.1.0` 为历史版本） | `publish.yml` 的 npm trusted publishing（OIDC）；CI run `38121182396` 成功 |
-| `@hualiong/dsh-session-delete` | registry 最新 `0.3.6`；**本地 `0.4.0` 已就绪、待发**（`0.3.3`、`0.3.4`、`0.3.5` 为更早版本） | `publish.yml` 的 npm trusted publishing（OIDC）；CI run `38123210607`（`0.3.6`）成功 |
+| `@hualiong/dsh-session-delete` | **已发布 `0.4.0`**（`0.3.3`、`0.3.4`、`0.3.5`、`0.3.6` 为历史版本） | `publish.yml` 的 npm trusted publishing（OIDC）；CI run `38932876148`（`0.4.0`）成功（带 provenance，`logIndex=3282075769`） |
 | `@hualiong/dsh-cost-lite` | **已发布 `0.1.3`**（`0.1.1`、`0.1.2` 为历史版本；独立仓库 `hualiong/dsh-cost-lite`） | `publish.yml` 的 npm trusted publishing（OIDC）；CI run `38762163863` 成功（带 provenance，`logIndex=3265974642`） |
-| `@hualiong/dsh-plugin-suite` | registry 最新 `1.3.2`；**本地 `1.3.3` 已就绪、待发**（`1.1.0`、`1.1.1`、`1.2.1`、`1.3.0`、`1.3.1` 为更早版本；`1.2.0` 曾误发并撤回） | `publish.yml` 的 npm trusted publishing（OIDC）；CI run `38762567958`（`1.3.2`）成功（带 provenance，`logIndex=3265980991`） |
+| `@hualiong/dsh-plugin-suite` | **已发布 `1.3.3`**（`1.1.0`、`1.1.1`、`1.2.1`、`1.3.0`、`1.3.1`、`1.3.2` 为历史版本；`1.2.0` 曾误发并撤回） | `publish.yml` 的 npm trusted publishing（OIDC）；CI run `38933109978`（`1.3.3`）成功（带 provenance，`logIndex=3282086216`） |
 
 五个包的 workflow 现在**都是 OIDC 路线**（无任何 secret，各仓库的 `gh secret list` 均为空）：
 
@@ -307,6 +307,16 @@ suite 6 项（`cordis.patch.yml`、`package.json`、`README.md`、`LICENSE`、`l
 
 ## 验证记录
 
+* **`0.4.0` / `1.3.3` 发布与发布后复验（本机，2026-10-17）**：
+  * 先发组件：`git tag v0.4.0` → CI run `38932876148` 成功，provenance `logIndex=3282075769`，tarball **8 个文件**
+    （`LICENSE` 从这一版起随包发出）。registry 传播约 40s 后 `npm view @hualiong/dsh-session-delete version` = `0.4.0`。
+  * 再发套件（依赖范围指向上一步刚发的 `^0.4.0`）：`git tag v1.3.3` → CI run `38933109978` 成功，
+    provenance `logIndex=3282086216`，tarball **6 个文件**。
+  * `npm pack @hualiong/dsh-session-delete@0.4.0` 与 `npm pack @hualiong/dsh-plugin-suite@1.3.3` 复核 tarball 内容，
+    与工作区 `files` 字段一致（组件多了 `LICENSE`，套件照旧 6 项）。
+  * 套件 `pnpm-lock.yaml` 刷新：`pnpm install --lockfile-only` 后钉住 `@hualiong/dsh-session-delete@0.4.0`
+    （snapshot 形如 `@hualiong/dsh-session-delete@0.4.0(@deepseek-ai/cordis@4.0.4)(@deepseek-ai/schemastery@3.18.4)`，
+    与组件声明的可选 peer 一致），`pnpm` 报 `Lockfile passes supply-chain policies (103 entries)`。
 * **`1.3.3` + `session-delete@0.4.0` 发布前预检（本机，2026-10-17）**：
   * 版本与依赖：`@hualiong/dsh-session-delete` `0.3.6 → 0.4.0`；套件 `1.3.2 → 1.3.3`，`dependencies['@hualiong/dsh-session-delete']` = `^0.4.0`
     （按上面的版本号规则：聚合形态未变、仍是 3 个组件，所以只有末位 +1）。
