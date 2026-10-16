@@ -47,7 +47,7 @@ dsh plugin --profile desktop add @hualiong/dsh-plugin-suite
 ```jsonc
 {
   "dependencies": {
-    "@hualiong/dsh-plugin-suite": "^1.3.2"
+    "@hualiong/dsh-plugin-suite": "^1.3.3"
   },
   "dsh": { "profile": { "bundles": [ /* …, */ "@hualiong/dsh-plugin-suite" ] } }
 }
@@ -153,17 +153,30 @@ DSH 读取显示元数据的方式是：先把 `${包名}/locale/en.json` 当作
   本机 desktop profile 就是这么停用原来那三个插件的：旧包仍在 `dependencies`，但不在 `bundles` 里。
 * **卸载**：先移出 `bundles`，再 `pnpm remove`。
 
+## 版本号规则
+
+本包（**只针对 `@hualiong/dsh-plugin-suite`**，各组件包各自按自己的语义化版本走）的 `X.Y.Z` 三段各管一件事：
+
+| 段 | 含义 | 什么时候动 |
+| --- | --- | --- |
+| `X` 首位 | 聚合形态本身 | **非大幅重构不动**。套件整个换一种组织方式（不再是「一个安装单元 + N 个组件行」）才 +1 |
+| `Y` 中间位 | **套件包含多少个组件** | 组件增删时跟着组件数走。现在 3 个组件（MCP 管理器、会话删除、费用计量），所以是 `3`；加一个组件就是 `1.4.0`，减一个就是 `1.2.0` |
+| `Z` 末位 | 发包迭代 | **每次发包 +1**。任何一个组件升级、或套件自身（行、文案、依赖范围）有改动就发一版；哪怕这一次有一大堆组件一起更新，也只 +1 |
+
+所以 `1.3.2 → 1.3.3` 读作：聚合形态没变、仍是 3 个组件、这是第 4 次在「3 个组件」这个形态下发包。
+如果某次只改了文档、没有功能变化，仍然算一次发包、仍然 +1 —— 末位就是发包计数器。
+
 ## 发布（npm）
 
-五个包的 registry 现状（查询于 2026-10-14）：
+五个包的 registry 现状（查询于 2026-10-14；最后两行补 2026-10-17 的本地就绪状态）：
 
 | 包 | registry | 发布方式 |
 | --- | --- | --- |
 | `@hualiong/dsh-mcp-manager` | **已发布 `0.1.7`**（`0.1.5`、`0.1.6` 为历史版本） | `publish.yml` 的 npm trusted publishing（OIDC） |
 | `@hualiong/dsh-oauth-mcp-client` | **已发布 `0.1.1`**（`0.1.0` 为历史版本） | `publish.yml` 的 npm trusted publishing（OIDC）；CI run `38121182396` 成功 |
-| `@hualiong/dsh-session-delete` | **已发布 `0.3.6`**（`0.3.3`、`0.3.4`、`0.3.5` 为历史版本） | `publish.yml` 的 npm trusted publishing（OIDC）；CI run `38123210607` 成功 |
+| `@hualiong/dsh-session-delete` | registry 最新 `0.3.6`；**本地 `0.4.0` 已就绪、待发**（`0.3.3`、`0.3.4`、`0.3.5` 为更早版本） | `publish.yml` 的 npm trusted publishing（OIDC）；CI run `38123210607`（`0.3.6`）成功 |
 | `@hualiong/dsh-cost-lite` | **已发布 `0.1.3`**（`0.1.1`、`0.1.2` 为历史版本；独立仓库 `hualiong/dsh-cost-lite`） | `publish.yml` 的 npm trusted publishing（OIDC）；CI run `38762163863` 成功（带 provenance，`logIndex=3265974642`） |
-| `@hualiong/dsh-plugin-suite` | **已发布 `1.3.2`**（`1.1.0`、`1.1.1`、`1.2.1`、`1.3.0`、`1.3.1` 为历史版本；`1.2.0` 曾误发并撤回） | `publish.yml` 的 npm trusted publishing（OIDC）；CI run `38762567958` 成功（带 provenance，`logIndex=3265980991`） |
+| `@hualiong/dsh-plugin-suite` | registry 最新 `1.3.2`；**本地 `1.3.3` 已就绪、待发**（`1.1.0`、`1.1.1`、`1.2.1`、`1.3.0`、`1.3.1` 为更早版本；`1.2.0` 曾误发并撤回） | `publish.yml` 的 npm trusted publishing（OIDC）；CI run `38762567958`（`1.3.2`）成功（带 provenance，`logIndex=3265980991`） |
 
 五个包的 workflow 现在**都是 OIDC 路线**（无任何 secret，各仓库的 `gh secret list` 均为空）：
 
@@ -187,11 +200,11 @@ npm publish --access public --provenance
 ```powershell
 gh auth setup-git                                    # 让 git push 用 gh 的凭据
 
-git -C dsh-cost-lite tag v0.1.3                      # tag 必须等于 package.json 的 version，CI 会校验
-git -C dsh-cost-lite push origin main v0.1.3
+git -C dsh-session-delete tag v0.4.0                 # 先发组件：tag 必须等于 package.json 的 version，CI 会校验
+git -C dsh-session-delete push origin main v0.4.0
 
-git -C dsh-plugin-suite tag v1.3.2
-git -C dsh-plugin-suite push origin main v1.3.2
+git -C dsh-plugin-suite tag v1.3.3                   # 再发套件（它的依赖范围指向刚发的 ^0.4.0）
+git -C dsh-plugin-suite push origin main v1.3.3
 
 gh run watch --repo hualiong/dsh-plugin-suite $(gh run list --repo hualiong/dsh-plugin-suite --limit 1 --json databaseId -q '.[0].databaseId')
 ```
@@ -201,6 +214,12 @@ gh run watch --repo hualiong/dsh-plugin-suite $(gh run list --repo hualiong/dsh-
 命令行等价物 `npm trust github <包名> --file publish.yml --repo hualiong/<repo> --allow-publish` 也可，
 但它属于账号变更操作、**必须交互式 2FA**（bypass-2FA token 会被 npm 拒绝），只能由账号主人执行一次。
 绑定好之后**不要再配 `NPM_TOKEN` secret**，也不要把 bypass-2FA token 交给 CI。
+
+`1.3.3` 的内容变化：
+
+* 依赖 `@hualiong/dsh-session-delete` 升到 `^0.4.0`（`0.4.0` 必须**先发**，套件后发）。套件这一层（行、文案、`cordis.patch.yml`）没有改动 —— 按上面的版本号规则，组件升级也是一次发包，所以末位 +1。
+* 组件 `dsh-session-delete 0.4.0` 带进来的能力：删除会话时**级联删除整棵子代理树**（任一后代在运行则整体拒绝）、清理 pin 记录、删除后广播 `api-session/removed` 让侧栏行立即消失；新增两个 agent 工具 `session_list` / `session_delete`；套件里那一行多了自己的**配置页**（插件页 → 「会话删除」行右侧 Configure），开关 `exposeAgentTools` 控制是否向 agent 暴露这两个工具。
+* 该行页面的 key 是 `<bundle 包名>#<行 id>`：套件内是 `@hualiong/dsh-plugin-suite#chameleon-session-delete`，单独安装该组件是 `@hualiong/dsh-session-delete#chameleon-session-delete`，组件把两种形态都登记了一次。
 
 `1.3.2` 的内容变化：
 
@@ -257,7 +276,7 @@ gh run watch --repo hualiong/dsh-plugin-suite $(gh run list --repo hualiong/dsh-
 发布内容已用 `npm pack --dry-run --json --ignore-scripts` 逐包核对：
 mcp-manager 10 项（`lib/index.js`、`lib/client.js` + 两个 sourcemap、`cordis.patch.yml`、`locale/{en,zh}.json`、LICENSE/README/package.json）、
 oauth 25 项（`lib/**` 的 js/d.ts/map、`dsh-oauth-mcp.cordis.yml`、`locale/{en,zh}.json`、README）、
-session-delete 7 项（`src/{index,client}.js`、`cordis.patch.yml`、`locale/{en,zh}.json`，已无 `icon.svg`）、
+session-delete 8 项（`src/{index,client}.js`、`cordis.patch.yml`、`locale/{en,zh}.json`、LICENSE，已无 `icon.svg`）、
 cost-lite 9 项（`src/{index,client,pricing}.js`、`cordis.patch.yml`、`locale/{en,zh}.json`、LICENSE/README/package.json）、
 suite 6 项（`cordis.patch.yml`、`package.json`、`README.md`、`LICENSE`、`locale/{en,zh}.json`）。
 
@@ -270,7 +289,7 @@ suite 6 项（`cordis.patch.yml`、`package.json`、`README.md`、`LICENSE`、`l
 
 ```jsonc
 {
-  "dependencies": { "@hualiong/dsh-plugin-suite": "1.3.2" },
+  "dependencies": { "@hualiong/dsh-plugin-suite": "1.3.3" },
   "dsh": { "profile": { "bundles": [ /* …, */ "@hualiong/dsh-plugin-suite" ] } }
 }
 ```
@@ -288,6 +307,25 @@ suite 6 项（`cordis.patch.yml`、`package.json`、`README.md`、`LICENSE`、`l
 
 ## 验证记录
 
+* **`1.3.3` + `session-delete@0.4.0` 发布前预检（本机，2026-10-17）**：
+  * 版本与依赖：`@hualiong/dsh-session-delete` `0.3.6 → 0.4.0`；套件 `1.3.2 → 1.3.3`，`dependencies['@hualiong/dsh-session-delete']` = `^0.4.0`
+    （按上面的版本号规则：聚合形态未变、仍是 3 个组件，所以只有末位 +1）。
+  * 两个 `package.json` 里**没有任何 `link:`**；套件依赖全是 registry 范围（`cost-lite ^0.1.3` / `mcp-manager ^0.1.7` /
+    `oauth-mcp-client ^0.1.1` / `session-delete ^0.4.0`）。
+  * `npm pack --dry-run --json --ignore-scripts`：session-delete **8 项**、套件 **6 项**。session-delete 本轮补了 `LICENSE`
+    （它是这一族里此前唯一没带 LICENSE 的包）。
+  * 套件 `cordis.patch.yml` 里 `name: '@hualiong/` 计数 = **3**（发布 workflow 的门槛是 ≥ 3）；两个包的 `package.json` 与
+    `locale/{en,zh}.json` 全部可 JSON 解析；`node --check` 两个源码文件通过。
+  * 组件侧两个本地 harness 复跑：宿主 30 项 / 客户端 26 项，均 **ALL CHECKS PASSED**。
+  * `pnpm-workspace.yaml` 补 `@hualiong/dsh-session-delete@0.4.0` 与 `@hualiong/dsh-plugin-suite@1.3.3` 两条
+    `minimumReleaseAgeExclude`（否则发布后 24h 内 `pnpm install` 会被供货链策略拦下）。
+  * 组件 `dsh-session-delete` 把两个**由 DSH 运行时提供**的 import 从 `devDependencies` 挪到 `peerDependencies` +
+    `peerDependenciesMeta.optional`：`@deepseek-ai/dsh-tools`（`defineTool`）与 `@deepseek-ai/schemastery`（`Config`）。
+    依据是已发布的第三方插件写法（`dsh-rewind-plugin` 把 `@deepseek-ai/dsh-llm` 等同类包声明为可选 peer，profile 里并不安装
+    它们，插件照样加载）；`@deepseek-ai/dsh-home-paths` 继续留在 `dependencies`（`0.3.6` 的教训）。
+  * **发布顺序**：先 `v0.4.0`（dsh-session-delete）→ 再 `v1.3.3`（本仓库）。套件的 `pnpm-lock.yaml` 仍钉着
+    `@hualiong/dsh-session-delete@0.3.6`，等 `0.4.0` 上了 registry 后在本仓库跑一次 `pnpm install --lockfile-only` 刷掉
+    （CI 不读 lockfile，不阻塞本次发布）。
 * **`1.3.2` + `cost-lite@0.1.3` 发布（本机，2026-10-15）**：预检 `cordis.patch.yml` 里 `name: '@hualiong/` 计数 = 3、
   `npm pack --dry-run` = 6 个文件、`locale/{en,zh}.json` 可解析后打 tag `v1.3.2`（CI run `38762567958` 成功，
   provenance `logIndex=3265980991`）；先发的 `@hualiong/dsh-cost-lite@0.1.3`（tag `v0.1.3`，CI run `38762163863` 成功，
