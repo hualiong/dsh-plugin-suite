@@ -1,15 +1,16 @@
 # @hualiong/dsh-plugin-suite
 
-一个**安装单元 + 一层补丁**：本包自身不含任何代码，只声明三个原本独立的 DSH 插件（MCP 管理器、会话删除、费用计量）外加一个支撑件（OAuth MCP 桥，**归在 MCP 管理器名下**）为依赖，并把三个组件的行插入 profile 的组合树（OAuth 桥只装、不带行 —— 服务器行由你添加，见下）。
+一个**安装单元 + 一层补丁**：本包自身不含任何代码，只声明四个原本独立的 DSH 插件（MCP 管理器、会话删除、QQ 机器人、费用计量）外加一个支撑件（OAuth MCP 桥，**归在 MCP 管理器名下**）为依赖，并把四个组件的行插入 profile 的组合树（OAuth 桥只装、不带行 —— 服务器行由你添加，见下）。
 
 | 行 id | 包 | 宿主 | 浏览器 UI |
 | --- | --- | --- | --- |
 | `mcp-manager` | `@hualiong/dsh-mcp-manager` | MCP 面板的 HTTP/SSE 载体，读写 profile patch 文件 | 设置面板 “MCP” 小节 |
 | `chameleon-session-delete` | `@hualiong/dsh-session-delete` | `POST /__chameleon/session/delete` 及其删除链路 | 侧栏会话菜单项 + 确认弹窗 |
+| `hualiong-dsh-qq-bot` | `@hualiong/dsh-qq-bot` | QQ 私聊 ↔ 会话桥：绑定、`/new`、最终答案回传、`send_qq_message` 工具、机器人配置与状态 | 设置页「QQ机器人」+ 侧栏会话菜单「绑定QQ会话」+ 会话行 QQ 标记 |
 | （套件**不预置**服务器行） | `@hualiong/dsh-oauth-mcp-client` | OAuth 授权的 Streamable HTTP MCP 客户端桥，**每个服务器一行**；它是 MCP 管理器面板的支撑件（面板里选 OAuth 用的就是它），**不单独算一个组件**；装好了，但它自己不会启动任何服务器 | 无 |
 | `cost-lite`（默认 `disabled: true`） | `@hualiong/dsh-cost-lite` | `GET /__cost-lite/usage?sessionId=…` 的计费快照 | 输入框停靠栏的会话费用徽标 + 助手消息操作行的单轮徽标 |
 
-三个组件（外加作为 MCP 管理器支撑件的 OAuth 桥）仍然是各自独立的包、各自拥有自己的 `./client` 浏览器产物、各自的 fiber：可单独启停、删除或重排，互不影响。
+四个组件（外加作为 MCP 管理器支撑件的 OAuth 桥）仍然是各自独立的包、各自拥有自己的 `./client` 浏览器产物、各自的 fiber：可单独启停、删除或重排，互不影响。
 
 ## 为什么是「聚合包」而不是「单包合并」
 
@@ -23,8 +24,8 @@ DSH 插件详细页的组件行元数据是按**该行声明的模块标识**去
 ## 目录
 
 ```
-package.json        依赖三个组件包 + OAuth 桥；dsh.bundle.patch = ./cordis.patch.yml；无 icon（用默认图标）
-cordis.patch.yml    bundle 层：一个 insert，插入三行（mcp-manager / session-delete / cost-lite；cost-lite 默认 disabled）
+package.json        依赖四个组件包 + OAuth 桥；dsh.bundle.patch = ./cordis.patch.yml；无 icon（用默认图标）
+cordis.patch.yml    bundle 层：一个 insert，插入四行（mcp-manager / session-delete / qq-bot / cost-lite；cost-lite 默认 disabled）
 locale/en.json      套件卡片的显示名（英文 meta.title / meta.description；锚点文件，必须存在）
 locale/zh.json      套件卡片的显示名（中文）
 README.md
@@ -47,7 +48,7 @@ dsh plugin --profile desktop add @hualiong/dsh-plugin-suite
 ```jsonc
 {
   "dependencies": {
-    "@hualiong/dsh-plugin-suite": "^1.3.3"
+    "@hualiong/dsh-plugin-suite": "^1.4.0"
   },
   "dsh": { "profile": { "bundles": [ /* …, */ "@hualiong/dsh-plugin-suite" ] } }
 }
@@ -65,20 +66,20 @@ dsh plugin --profile desktop add @hualiong/dsh-plugin-suite
 ```
 
 ```powershell
-# 四个包（三个组件 + OAuth 桥）由本包声明为 dependencies，先装进本包自己的 node_modules
+# 五个包（四个组件 + OAuth 桥）由本包声明为 dependencies，先装进本包自己的 node_modules
 pnpm install --dir C:/Users/64261/Desktop/Workspace/dsh-plugin-suite
 dsh plugin --profile desktop install     # 或 pnpm install（profile 目录内）
 ```
 
-`bundles` 里的顺序即组合顺序；本包自带 `cordis.patch.yml` 会在其中插入下面三行。
+`bundles` 里的顺序即组合顺序；本包自带 `cordis.patch.yml` 会在其中插入下面四行。
 **本包不预置任何 MCP 服务器行** —— OAuth 桥装好了，但服务器行要你自己加（MCP 面板，或 profile 的 `insert:`）。
 
-profile 只依赖本包即可，**不要再单独依赖这四个包**：
+profile 只依赖本包即可，**不要再单独依赖这五个包**：
 
-- 运行时按「已选中 bundle 的依赖闭包」解析组件（`@deepseek-ai/dsh-app-boot/lib/index.js:819-822` 的 `collectProfileScopePackages`；请求按声明者目录查找，见 `profile-resolution-bootstrap.js:205-211` 的 `packageSearchPaths`），所以本包 `node_modules` 里的四份副本就够用。
-- 插件页的「已安装」列表 = `dsh.profile.bundles` ∪ profile 的 `dependencies` ∪ 安装自带依赖（`@deepseek-ai/dsh-plugin-manager/lib/index.js:1459-1469`）。凡是声明了 `dsh.bundle.patch` 的依赖都会占一张卡 —— 在 profile 里再依赖这四个包，插件页就会多出四张卡（且开关处于「未选中」状态）。
+- 运行时按「已选中 bundle 的依赖闭包」解析组件（`@deepseek-ai/dsh-app-boot/lib/index.js:819-822` 的 `collectProfileScopePackages`；请求按声明者目录查找，见 `profile-resolution-bootstrap.js:205-211` 的 `packageSearchPaths`），所以本包 `node_modules` 里的五份副本就够用。
+- 插件页的「已安装」列表 = `dsh.profile.bundles` ∪ profile 的 `dependencies` ∪ 安装自带依赖（`@deepseek-ai/dsh-plugin-manager/lib/index.js:1459-1469`）。凡是声明了 `dsh.bundle.patch` 的依赖都会占一张卡 —— 在 profile 里再依赖这五个包，插件页就会多出五张卡（且开关处于「未选中」状态）。
 - 改动 profile 的 `dependencies` 后必须**重启 DSH**：运行时解析器拒绝热替换，会报 `profile resolution: removing local package … requires a process restart`（`profile-resolution-bootstrap.js:258`）。
-- 想让四个包的**本地源码改动即时生效**时，把四条 `link:` 加回 profile 的 `dependencies`（插件页会重新出现那四张卡），改完再删掉。
+- 想让五个包的**本地源码改动即时生效**时，把五条 `link:` 加回 profile 的 `dependencies`（插件页会重新出现那五张卡），改完再删掉。
 
 ## 行长什么样
 
@@ -89,6 +90,12 @@ profile 只依赖本包即可，**不要再单独依赖这四个包**：
       name: '@hualiong/dsh-mcp-manager'
     - id: chameleon-session-delete
       name: '@hualiong/dsh-session-delete'
+    # 默认启用：没有机器人凭据时它只是待命（日志「尚未配置 QQ 机器人。」），
+    # 在「设置 → QQ机器人」配好 AppID/Secret 才开始连接
+    - id: hualiong-dsh-qq-bot
+      name: '@hualiong/dsh-qq-bot'
+      config:
+        toolEnabled: true
     # 默认禁用：计费是 opt-in，装套件不改变会话显示
     - id: cost-lite
       name: '@hualiong/dsh-cost-lite'
@@ -129,7 +136,7 @@ profile patch 是最后一层，它写的 `disabled` 最终生效 —— 例如�
 
 DSH 读取显示元数据的方式是：先把 `${包名}/locale/en.json` 当作**锚点**解析，再扫描该文件所在目录下所有 `*.json` 作为各语言词典；
 显示时 `ctx.locale.resolveText(text)` 以 **`en` 键作为兜底种子**，再沿当前语言的回退链查找。
-所以五个包都提供规范的 `locale/en.json`（英文）+ `locale/zh.json`（中文），并按当前界面语言显示：
+所以六个包都提供规范的 `locale/en.json`（英文）+ `locale/zh.json`（中文），并按当前界面语言显示：
 
 | 包 | 详细页标题（zh / en） | 图标 |
 | --- | --- | --- |
@@ -137,20 +144,21 @@ DSH 读取显示元数据的方式是：先把 `${包名}/locale/en.json` 当作
 | `@hualiong/dsh-mcp-manager` | MCP 管理器 / MCP Manager | 无（默认图标） |
 | `@hualiong/dsh-oauth-mcp-client` | OAuth MCP 客户端 / OAuth MCP Client | 无（默认图标） |
 | `@hualiong/dsh-session-delete` | 会话删除 / Session Delete | 无（默认图标） |
+| `@hualiong/dsh-qq-bot` | QQ机器人 / QQ Robot | `icon.svg`（QQ 机器人图标） |
 | `@hualiong/dsh-cost-lite` | 费用计量 / Cost Meter | 无（默认图标） |
 
 * 改标题/描述：编辑对应包的 `locale/en.json`（英文）与 `locale/zh.json`（中文）的 `meta.title` / `meta.description`；
   新增语言 = 在同目录再加一份 `<lang>.json`（文件名必须是合法语言 id），`en` 必须始终存在；
-* 这些文件必须能被解析到 —— 四个包都导出 `"./package.json"`、`"./locale/en.json"`、`"./locale/zh.json"`；
+* 这些文件必须能被解析到 —— 五个包都导出 `"./package.json"`、`"./locale/en.json"`、`"./locale/zh.json"`；
   套件包**有意不声明 `exports`**，因此 `${包名}/package.json`、`${包名}/locale/*.json` 与 `${包名}/cordis.patch.yml` 都能按路径解析；
-* 五个包都**不声明 `icon`**，所以卡片与每个组件行都用默认图标。
+* 六个包里只有 `@hualiong/dsh-qq-bot` 声明了 `icon`（`./icon.svg`），其余五张卡与各自的行都用默认图标。
 
 ## 单独启停 / 卸载
 
 * **停用某个组件**：在 profile patch 里给该行加/改最后一条匹配覆盖项的 `disabled: true`，或直接删掉该行
-  （`cost-lite` 默认 `disabled: true`，其它两行默认启用；套件不预置 MCP 服务器行，服务器行完全由你添加/删除）。
+  （`cost-lite` 默认 `disabled: true`，其它三行默认启用；套件不预置 MCP 服务器行，服务器行完全由你添加/删除）。
 * **停用整包**：把 `@hualiong/dsh-plugin-suite` 从 `dsh.profile.bundles` 移除（依赖可保留，官方推荐的“关闭保留依赖”语义）。
-  本机 desktop profile 就是这么停用原来那三个插件的：旧包仍在 `dependencies`，但不在 `bundles` 里。
+  本机 desktop profile 就是这么停用原来那几个独立插件的：旧包仍在 `dependencies`，但不在 `bundles` 里。
 * **卸载**：先移出 `bundles`，再 `pnpm remove`。
 
 ## 版本号规则
@@ -160,25 +168,27 @@ DSH 读取显示元数据的方式是：先把 `${包名}/locale/en.json` 当作
 | 段 | 含义 | 什么时候动 |
 | --- | --- | --- |
 | `X` 首位 | 聚合形态本身 | **非大幅重构不动**。套件整个换一种组织方式（不再是「一个安装单元 + N 个组件行」）才 +1 |
-| `Y` 中间位 | **套件包含多少个组件** | 组件增删时跟着组件数走。现在 3 个组件（MCP 管理器、会话删除、费用计量），所以是 `3`；加一个组件就是 `1.4.0`，减一个就是 `1.2.0` |
+| `Y` 中间位 | **套件包含多少个组件** | 组件增删时跟着组件数走。现在 4 个组件（MCP 管理器、会话删除、QQ 机器人、费用计量），所以是 `4`；加一个组件就是 `1.5.0`，减一个就是 `1.3.0` |
 | `Z` 末位 | 发包迭代 | **每次发包 +1**。任何一个组件升级、或套件自身（行、文案、依赖范围）有改动就发一版；哪怕这一次有一大堆组件一起更新，也只 +1 |
 
-所以 `1.3.2 → 1.3.3` 读作：聚合形态没变、仍是 3 个组件、这是第 4 次在「3 个组件」这个形态下发包。
+所以 `1.3.3 → 1.4.0` 读作：聚合形态没变、组件从 3 个增到 4 个（新增 QQ 机器人）、所以中间位 +1。
 如果某次只改了文档、没有功能变化，仍然算一次发包、仍然 +1 —— 末位就是发包计数器。
 
 ## 发布（npm）
 
-五个包的 registry 现状（查询于 2026-10-14；最后两行补 2026-10-17 的本地就绪状态）：
+六个包的 registry 现状（查询于 2026-10-18）：
 
 | 包 | registry | 发布方式 |
 | --- | --- | --- |
 | `@hualiong/dsh-mcp-manager` | **已发布 `0.1.7`**（`0.1.5`、`0.1.6` 为历史版本） | `publish.yml` 的 npm trusted publishing（OIDC） |
 | `@hualiong/dsh-oauth-mcp-client` | **已发布 `0.1.1`**（`0.1.0` 为历史版本） | `publish.yml` 的 npm trusted publishing（OIDC）；CI run `38121182396` 成功 |
-| `@hualiong/dsh-session-delete` | **已发布 `0.4.0`**（`0.3.3`、`0.3.4`、`0.3.5`、`0.3.6` 为历史版本） | `publish.yml` 的 npm trusted publishing（OIDC）；CI run `38932876148`（`0.4.0`）成功（带 provenance，`logIndex=3282075769`） |
+| `@hualiong/dsh-session-delete` | **已发布 `0.4.1`**（`0.3.3`～`0.4.0` 为历史版本） | `publish.yml` 的 npm trusted publishing（OIDC）；CI run `39125375353`（`0.4.1`）成功（带 provenance） |
+| `@hualiong/dsh-qq-bot` | **已发布 `0.4.0`**（`0.3.x` 的旧名是 `dsh-qq-lite`，只有 `qq` 渠道） | 手工 `npm publish`（仓库里暂无 workflow；包内容见下） |
 | `@hualiong/dsh-cost-lite` | **已发布 `0.1.3`**（`0.1.1`、`0.1.2` 为历史版本；独立仓库 `hualiong/dsh-cost-lite`） | `publish.yml` 的 npm trusted publishing（OIDC）；CI run `38762163863` 成功（带 provenance，`logIndex=3265974642`） |
-| `@hualiong/dsh-plugin-suite` | **已发布 `1.3.3`**（`1.1.0`、`1.1.1`、`1.2.1`、`1.3.0`、`1.3.1`、`1.3.2` 为历史版本；`1.2.0` 曾误发并撤回） | `publish.yml` 的 npm trusted publishing（OIDC）；CI run `38933109978`（`1.3.3`）成功（带 provenance，`logIndex=3282086216`） |
+| `@hualiong/dsh-plugin-suite` | **已发布 `1.3.3`**（`1.1.0`、`1.1.1`、`1.2.1`、`1.3.0`、`1.3.1`、`1.3.2` 为历史版本；`1.2.0` 曾误发并撤回）；`1.4.0` 为本次发布 | `publish.yml` 的 npm trusted publishing（OIDC）；`1.3.3` 的 CI run `38933109978` 成功（带 provenance，`logIndex=3282086216`） |
 
-五个包的 workflow 现在**都是 OIDC 路线**（无任何 secret，各仓库的 `gh secret list` 均为空）：
+前五个包的 workflow 现在**都是 OIDC 路线**（无任何 secret，`gh secret list` 均为空）；`@hualiong/dsh-qq-bot` 仓库还没有 workflow，
+它的 `0.4.0` 是手工发布的（要给它补 CI 就照下面这段复制一份 `publish.yml` 并在 npm 绑定 trusted publisher）：
 
 ```yaml
 on:
@@ -193,18 +203,18 @@ npm publish --access public --provenance
 ```
 
 套件自己的 `publish.yml` 在发布前还会校验内容：`cordis.patch.yml` / `locale/{en,zh}.json` / `README.md` / `LICENSE` 必须存在，
-且 `cordis.patch.yml` 里 `name: '@hualiong/` 的出现次数不得少于 3（当前正好 3 行；注释里的示例故意写成占位符，免得把这条检查喂饱）。
+且 `cordis.patch.yml` 里 `name: '@hualiong/` 的出现次数不得少于 4（当前正好 4 行；注释里的示例故意写成占位符，免得把这条检查喂饱）。
 
 发布姿势：**版本号写进 `package.json` → 打同名 tag → 推 tag 触发 CI → 用 gh 观察**（**不建 GitHub Release**）：
 
 ```powershell
 gh auth setup-git                                    # 让 git push 用 gh 的凭据
 
-git -C dsh-session-delete tag v0.4.0                 # 先发组件：tag 必须等于 package.json 的 version，CI 会校验
-git -C dsh-session-delete push origin main v0.4.0
+git -C dsh-session-delete tag v0.4.1                 # 先发组件：tag 必须等于 package.json 的 version，CI 会校验
+git -C dsh-session-delete push origin main v0.4.1
 
-git -C dsh-plugin-suite tag v1.3.3                   # 再发套件（它的依赖范围指向刚发的 ^0.4.0）
-git -C dsh-plugin-suite push origin main v1.3.3
+git -C dsh-plugin-suite tag v1.4.0                   # 再发套件（它的依赖范围指向刚发的 ^0.4.1 与已发的 qq-bot ^0.4.0）
+git -C dsh-plugin-suite push origin main v1.4.0
 
 gh run watch --repo hualiong/dsh-plugin-suite $(gh run list --repo hualiong/dsh-plugin-suite --limit 1 --json databaseId -q '.[0].databaseId')
 ```
@@ -214,6 +224,20 @@ gh run watch --repo hualiong/dsh-plugin-suite $(gh run list --repo hualiong/dsh-
 命令行等价物 `npm trust github <包名> --file publish.yml --repo hualiong/<repo> --allow-publish` 也可，
 但它属于账号变更操作、**必须交互式 2FA**（bypass-2FA token 会被 npm 拒绝），只能由账号主人执行一次。
 绑定好之后**不要再配 `NPM_TOKEN` secret**，也不要把 bypass-2FA token 交给 CI。
+
+`1.4.0` 的内容变化：
+
+* **新增第四个组件：QQ 机器人**（`@hualiong/dsh-qq-bot@^0.4.0`）。套件插一行 `hualiong-dsh-qq-bot`，
+  **默认启用**、配置 `toolEnabled: true`（与该组件自己的 bundle 层一致）；没有机器人凭据时它只是待命
+  （日志「尚未配置 QQ 机器人。」），不会让 profile 启动失败 —— 要真正连上，去「设置 → QQ机器人」扫码或填 AppID + AppSecret。
+* 依赖 `@hualiong/dsh-session-delete` 升到 `^0.4.1`：删除**当前**会话后的收尾与原生「归档」一致
+  （`uiWorkspace.clearMain()`，释放 mainView 引用与持久化选择），会话界面停在空会话（Hero）而不是像以前那样新开一个会话；
+  删除非当前会话完全不导航。
+* 卡片描述、`keywords`、中英文 `locale/meta.description` 同步为「四个组件」；`publish.yml` 的行数校验由 `rows < 3` 改为 `rows < 4`；
+  `pnpm-workspace.yaml` 补 `@hualiong/dsh-qq-bot@0.4.0`、`@hualiong/dsh-session-delete@0.4.1`、`@hualiong/dsh-plugin-suite@1.4.0`
+  三条 `minimumReleaseAgeExclude`（否则新发的版本 24h 内会被供货链策略拦下）。
+* **已经从独立安装升级过来的 profile**：把 `@hualiong/dsh-qq-bot` 从 `dsh.profile.bundles` 里移除即可
+  （行 id 是同一个 `hualiong-dsh-qq-bot`，套件与它自己的 bundle 层都会插这一行）；`dependencies` 里的条目可以留给 pnpm 解析、不影响行。
 
 `1.3.3` 的内容变化：
 
@@ -277,6 +301,7 @@ gh run watch --repo hualiong/dsh-plugin-suite $(gh run list --repo hualiong/dsh-
 mcp-manager 10 项（`lib/index.js`、`lib/client.js` + 两个 sourcemap、`cordis.patch.yml`、`locale/{en,zh}.json`、LICENSE/README/package.json）、
 oauth 25 项（`lib/**` 的 js/d.ts/map、`dsh-oauth-mcp.cordis.yml`、`locale/{en,zh}.json`、README）、
 session-delete 8 项（`src/{index,client}.js`、`cordis.patch.yml`、`locale/{en,zh}.json`、LICENSE，已无 `icon.svg`）、
+qq-bot 25 项（`src/**.js` 17 个，含 `src/qq/*`；`cordis.patch.yml`、`icon.svg`、`locale/{en,zh}.json`、LICENSE/README/THIRD_PARTY_NOTICES/package.json）、
 cost-lite 9 项（`src/{index,client,pricing}.js`、`cordis.patch.yml`、`locale/{en,zh}.json`、LICENSE/README/package.json）、
 suite 6 项（`cordis.patch.yml`、`package.json`、`README.md`、`LICENSE`、`locale/{en,zh}.json`）。
 
@@ -289,12 +314,12 @@ suite 6 项（`cordis.patch.yml`、`package.json`、`README.md`、`LICENSE`、`l
 
 ```jsonc
 {
-  "dependencies": { "@hualiong/dsh-plugin-suite": "1.3.3" },
+  "dependencies": { "@hualiong/dsh-plugin-suite": "1.4.0" },
   "dsh": { "profile": { "bundles": [ /* …, */ "@hualiong/dsh-plugin-suite" ] } }
 }
 ```
 
-即可 —— 四个包会被套件的 `dependencies` 自动拉进来，不必逐个安装。
+即可 —— 五个包会被套件的 `dependencies` 自动拉进来，不必逐个安装。
 
 ## 从原来的独立插件迁移
 
@@ -302,11 +327,31 @@ suite 6 项（`cordis.patch.yml`、`package.json`、`README.md`、`LICENSE`、`l
 | --- | --- |
 | `id: mcp-manager`, `name: '@hualiong/dsh-mcp-manager'` | 同名 id、同一个 `name`（现在由套件插入），profile 覆盖行只提供 `config.patchFile` |
 | `id: chameleon-session-delete`, `name: '@hualiong/dsh-session-delete'` | 同名 id、同一个 `name`（现在由套件插入，原先由该包自己的 patch 插入） |
+| `id: hualiong-dsh-qq-bot`, `name: '@hualiong/dsh-qq-bot'` | 同名 id、同一个 `name`（`1.4.0` 起由套件插入，原先由该包自己的 bundle 层插入）。已经从独立安装升级的 profile 要把 `@hualiong/dsh-qq-bot` 移出 `dsh.profile.bundles`，否则两处都会插同一个行 id |
 | `id: oauth-mcp-cloudflare`, `name: '@hualiong/dsh-oauth-mcp-client'` | 同名 id、同一个 `name`；**这一行不再由套件插入**（`1.3.1` 起）。套件只把它作为依赖装好，行本身仍由 profile 的 `insert:` 或 MCP 面板维护 —— 原来怎么写就怎么留 |
 | `id: cost-lite`, `name: '@hualiong/dsh-cost-lite'` | 同名 id、同一个 `name`（原先由该包自己的 patch 插入；套件里默认 `disabled: true`，profile 覆盖行按需打开） |
 
 ## 验证记录
 
+* **`1.4.0` 发布前预检（本机，2026-10-18）**：
+  * 版本与依赖：`@hualiong/dsh-session-delete` `^0.4.0 → ^0.4.1`，新增 `@hualiong/dsh-qq-bot@^0.4.0`；套件 `1.3.3 → 1.4.0`
+    （组件 3 → 4，按版本号规则动中间位）。五个依赖全是 registry 范围，没有 `link:`。
+  * `cordis.patch.yml` 用 `js-yaml` 解析：1 个 insert 层、**4 行**、id 互不重复；`name: '@hualiong/` 计数 = 4
+    （workflow 门槛已同步由 `rows < 3` 改为 `rows < 4`）。
+  * qq-bot 行照抄组件自己的 bundle 层（`config.toolEnabled: true`）；组件的 `src/index.js` 在 `!settings.appId || !settings.secretRef`
+    时只记 `lastError = '尚未配置 QQ 机器人。'` 然后 return，不抛错 ⇒ 默认启用不会让装套件的 profile 起不来。
+  * `pnpm install --lockfile-only` 后又在套件目录真装一次：五个依赖解析为 `cost-lite 0.1.3` / `mcp-manager 0.1.7` /
+    `oauth-mcp-client 0.1.1` / `qq-bot 0.4.0` / `session-delete 0.4.1`；`pnpm-workspace.yaml` 补了
+    `@hualiong/dsh-qq-bot@0.4.0`、`@hualiong/dsh-session-delete@0.4.1`、`@hualiong/dsh-plugin-suite@1.4.0` 三条 `minimumReleaseAgeExclude`。
+  * 组合层探针（一次性 profile `suite-verify`，从 web 默认 profile 复制后 `link:` 本包）：
+    `dsh --profile suite-verify --dump-config` 在 `# == @hualiong/dsh-plugin-suite` 段落下**正好四行** ——
+    `mcp-manager`、`chameleon-session-delete`、`hualiong-dsh-qq-bot`、`cost-lite`，整份组合树里没有 `oauth-mcp-*` 服务器行。
+  * 真机冒烟（同一探针 profile，`dsh --profile suite-verify --no-open --port 51999`）：启动只打印
+    `dsh web: http://127.0.0.1:51999/?token=…`，**没有 `did not activate`**；`POST /__chameleon/session/delete` 返回 400
+    （路由已挂载、无重复注册）；探针 profile 已整目录删除（先删 `link:`，工作区目录未受影响）。
+  * `npm pack --dry-run --json --ignore-scripts`：套件仍 **6 项**；从 registry 拉 `@hualiong/dsh-qq-bot@0.4.0` 的 tarball
+    复核为 **25 项**（与它的 `files` 字段一致）。
+  * `package.json` 与 `locale/{en,zh}.json` 均可 JSON 解析。
 * **`0.4.0` / `1.3.3` 发布与发布后复验（本机，2026-10-17）**：
   * 先发组件：`git tag v0.4.0` → CI run `38932876148` 成功，provenance `logIndex=3282075769`，tarball **8 个文件**
     （`LICENSE` 从这一版起随包发出）。registry 传播约 40s 后 `npm view @hualiong/dsh-session-delete version` = `0.4.0`。
@@ -391,9 +436,11 @@ suite 6 项（`cordis.patch.yml`、`package.json`、`README.md`、`LICENSE`、`l
 * OAuth 桥是「每个服务器一行」，**套件不预置任何服务器行**（`1.3.1` 起）：装完套件不会多出任何 MCP 服务器，
   要用 Cloudflare 或别的服务器，就在「设置 → MCP」面板点“新增”，或在 profile 的 `insert:` 里自己写一条。
   `@hualiong/dsh-mcp-manager` 自己不带任何服务器配置（它的 README 里出现 `oauth-mcp-cloudflare` 只是 `credentialRef` 推导示例）。
-* 插件页的「包含的组件」是按**行**计数的，所以套件卡片显示 **3 个**组件（MCP 管理器 / 会话删除 / 费用计量）。
+* 插件页的「包含的组件」是按**行**计数的，所以套件卡片显示 **4 个**组件（MCP 管理器 / 会话删除 / QQ 机器人 / 费用计量）。
   OAuth 桥归在 MCP 管理器名下、不作为独立组件出现（原因见 `1.3.2`），因此它没有自己的开关；
   真正决定它启不启用的是你为每台服务器写的那一行。
+* QQ 机器人行默认启用但**没有凭据时只待命**（日志「尚未配置 QQ 机器人。」）；接入方式是在「设置 → QQ机器人」扫码或填 AppID + AppSecret，
+  凭据存进 DSH 凭据库 / `$DSH_HOME/integrations/dsh-qq-bot`，不写进本套件或其 patch。
 * `cost-lite` 行默认关闭，计费徽标是 opt-in；它的价目只按精确 `(provider, model)` 命中，未登记组合整条跳过。
 * 组件的 UI 不再共享一个浏览器产物，但 `dsh.client` 的排序只作用于单个包内部：跨组件的加载顺序由各自的 `inject` 决定。
 * 组件内部的日志前缀沿用各组件包自己的前缀（`dsh-mcp-manager(...)` 等）。

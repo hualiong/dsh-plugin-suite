@@ -27,6 +27,13 @@
       name: '@hualiong/dsh-mcp-manager'
     - id: chameleon-session-delete
       name: '@hualiong/dsh-session-delete'
+    # Enabled like the component's own bundle layer: with no bot credentials it
+    # stays idle (logs「尚未配置 QQ 机器人。」) and waits for Settings → QQ机器人,
+    # so an enabled row changes nothing until a bot is connected.
+    - id: hualiong-dsh-qq-bot
+      name: '@hualiong/dsh-qq-bot'
+      config:
+        toolEnabled: true
     # Disabled on purpose: the cost meter is opt-in, so installing the bundle
     # does not change what a session displays. Enable it from the plugin detail
     # page or from a profile patch layer (`- id: cost-lite` + `disabled: false`).

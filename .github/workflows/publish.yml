@@ -42,7 +42,7 @@ jobs:
             }
             const patch = fs.readFileSync('cordis.patch.yml', 'utf8');
             const rows = (patch.match(/name: '@hualiong\//g) || []).length;
-            if (rows < 3) { console.error('expected 3 component rows, found ' + rows); process.exit(1); }
+            if (rows < 4) { console.error('expected 4 component rows, found ' + rows); process.exit(1); }
             console.log('bundle ok: ' + rows + ' component rows');
           "
 
