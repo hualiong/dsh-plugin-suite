@@ -185,7 +185,7 @@ DSH 读取显示元数据的方式是：先把 `${包名}/locale/en.json` 当作
 | `@hualiong/dsh-session-delete` | **已发布 `0.4.1`**（`0.3.3`～`0.4.0` 为历史版本） | `publish.yml` 的 npm trusted publishing（OIDC）；CI run `39125375353`（`0.4.1`）成功（带 provenance） |
 | `@hualiong/dsh-qq-bot` | **已发布 `0.4.0`**（`0.3.x` 的旧名是 `dsh-qq-lite`，只有 `qq` 渠道） | 手工 `npm publish`（仓库里暂无 workflow；包内容见下） |
 | `@hualiong/dsh-cost-lite` | **已发布 `0.1.3`**（`0.1.1`、`0.1.2` 为历史版本；独立仓库 `hualiong/dsh-cost-lite`） | `publish.yml` 的 npm trusted publishing（OIDC）；CI run `38762163863` 成功（带 provenance，`logIndex=3265974642`） |
-| `@hualiong/dsh-plugin-suite` | **已发布 `1.3.3`**（`1.1.0`、`1.1.1`、`1.2.1`、`1.3.0`、`1.3.1`、`1.3.2` 为历史版本；`1.2.0` 曾误发并撤回）；`1.4.0` 为本次发布 | `publish.yml` 的 npm trusted publishing（OIDC）；`1.3.3` 的 CI run `38933109978` 成功（带 provenance，`logIndex=3282086216`） |
+| `@hualiong/dsh-plugin-suite` | **已发布 `1.4.0`**（`1.1.0`、`1.1.1`、`1.2.1`、`1.3.0`、`1.3.1`、`1.3.2`、`1.3.3` 为历史版本；`1.2.0` 曾误发并撤回） | `publish.yml` 的 npm trusted publishing（OIDC）；CI run `39129448891`（`1.4.0`）成功（带 provenance，`logIndex=3311439790`） |
 
 前五个包的 workflow 现在**都是 OIDC 路线**（无任何 secret，`gh secret list` 均为空）；`@hualiong/dsh-qq-bot` 仓库还没有 workflow，
 它的 `0.4.0` 是手工发布的（要给它补 CI 就照下面这段复制一份 `publish.yml` 并在 npm 绑定 trusted publisher）：
@@ -333,6 +333,14 @@ suite 6 项（`cordis.patch.yml`、`package.json`、`README.md`、`LICENSE`、`l
 
 ## 验证记录
 
+* **`1.4.0` 发布与发布后复验（本机，2026-10-18）**：
+  * `git tag v1.4.0` → CI run `39129448891` 成功（npm job 20s），带 provenance `logIndex=3311439790`，tarball **6 个文件**
+    （`sha512-bRs2sgHPY3v0Z…qf1y9T0bQSgsg==`，与 CI 日志里的 integrity 一致）。
+  * registry 传播比往常慢：发布完成（20:57:42 +08）后约 6 分钟才在带 cache-bust 的 registry 文档里看到 `1.4.0`；
+    `dist-tags.latest` 随后变为 `1.4.0`，`npm pack @hualiong/dsh-plugin-suite@1.4.0` 复核 **6 项**，与 `files` 一致。
+  * 套件 `pnpm-lock.yaml` 已钉住 `@hualiong/dsh-qq-bot@0.4.0` 与 `@hualiong/dsh-session-delete@0.4.1`（发布前刷新）。
+  * 本机 desktop profile 在本次发布里**没有改动**（仍是套件 `1.3.3` + 独立的 `@hualiong/dsh-qq-bot` bundle）；
+    按上面的迁移表，升级前先把 `@hualiong/dsh-qq-bot` 移出 `dsh.profile.bundles`，再升到 `1.4.0`。
 * **`1.4.0` 发布前预检（本机，2026-10-18）**：
   * 版本与依赖：`@hualiong/dsh-session-delete` `^0.4.0 → ^0.4.1`，新增 `@hualiong/dsh-qq-bot@^0.4.0`；套件 `1.3.3 → 1.4.0`
     （组件 3 → 4，按版本号规则动中间位）。五个依赖全是 registry 范围，没有 `link:`。
