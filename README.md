@@ -48,7 +48,7 @@ dsh plugin --profile desktop add @hualiong/dsh-plugin-suite
 ```jsonc
 {
   "dependencies": {
-    "@hualiong/dsh-plugin-suite": "^1.4.0"
+    "@hualiong/dsh-plugin-suite": "^1.4.1"
   },
   "dsh": { "profile": { "bundles": [ /* …, */ "@hualiong/dsh-plugin-suite" ] } }
 }
@@ -183,12 +183,11 @@ DSH 读取显示元数据的方式是：先把 `${包名}/locale/en.json` 当作
 | `@hualiong/dsh-mcp-manager` | **已发布 `0.1.7`**（`0.1.5`、`0.1.6` 为历史版本） | `publish.yml` 的 npm trusted publishing（OIDC） |
 | `@hualiong/dsh-oauth-mcp-client` | **已发布 `0.1.1`**（`0.1.0` 为历史版本） | `publish.yml` 的 npm trusted publishing（OIDC）；CI run `38121182396` 成功 |
 | `@hualiong/dsh-session-delete` | **已发布 `0.4.1`**（`0.3.3`～`0.4.0` 为历史版本） | `publish.yml` 的 npm trusted publishing（OIDC）；CI run `39125375353`（`0.4.1`）成功（带 provenance） |
-| `@hualiong/dsh-qq-bot` | **已发布 `0.4.0`**（`0.3.x` 的旧名是 `dsh-qq-lite`，只有 `qq` 渠道） | 手工 `npm publish`（仓库里暂无 workflow；包内容见下） |
+| `@hualiong/dsh-qq-bot` | **已发布 `0.4.1`**（`0.4.0` 为手工发布；`0.3.x` 的旧名是 `dsh-qq-lite`，只有 `qq` 渠道） | `publish.yml` 的 npm trusted publishing（OIDC）；CI run `39441012748`（`0.4.1`）成功（带 provenance） |
 | `@hualiong/dsh-cost-lite` | **已发布 `0.1.3`**（`0.1.1`、`0.1.2` 为历史版本；独立仓库 `hualiong/dsh-cost-lite`） | `publish.yml` 的 npm trusted publishing（OIDC）；CI run `38762163863` 成功（带 provenance，`logIndex=3265974642`） |
 | `@hualiong/dsh-plugin-suite` | **已发布 `1.4.0`**（`1.1.0`、`1.1.1`、`1.2.1`、`1.3.0`、`1.3.1`、`1.3.2`、`1.3.3` 为历史版本；`1.2.0` 曾误发并撤回） | `publish.yml` 的 npm trusted publishing（OIDC）；CI run `39129448891`（`1.4.0`）成功（带 provenance，`logIndex=3311439790`） |
 
-前五个包的 workflow 现在**都是 OIDC 路线**（无任何 secret，`gh secret list` 均为空）；`@hualiong/dsh-qq-bot` 仓库还没有 workflow，
-它的 `0.4.0` 是手工发布的（要给它补 CI 就照下面这段复制一份 `publish.yml` 并在 npm 绑定 trusted publisher）：
+六个包的 workflow 现在**都是 OIDC 路线**（无任何 secret，`gh secret list` 均为空）；`@hualiong/dsh-qq-bot` 的 `publish.yml` 是 `0.4.1` 时照下面这段补上的：
 
 ```yaml
 on:
@@ -224,6 +223,10 @@ gh run watch --repo hualiong/dsh-plugin-suite $(gh run list --repo hualiong/dsh-
 命令行等价物 `npm trust github <包名> --file publish.yml --repo hualiong/<repo> --allow-publish` 也可，
 但它属于账号变更操作、**必须交互式 2FA**（bypass-2FA token 会被 npm 拒绝），只能由账号主人执行一次。
 绑定好之后**不要再配 `NPM_TOKEN` secret**，也不要把 bypass-2FA token 交给 CI。
+
+`1.4.1` 的内容变化：
+
+* 依赖 `@hualiong/dsh-qq-bot` 升到 `^0.4.1`：**`/rebind` 取代 `/unbind`**——空参列出当前工作区的未归档会话（标题＋更新时间，标记当前），带会话 ID 切换绑定，切换成功只回一行「已切换至 **标题**」；解绑改走 DSH 侧栏会话菜单。套件的 `cordis.patch.yml` / locale / 文案层没有改动——组件升级按规则也是一次发包，末位 +1。
 
 `1.4.0` 的内容变化：
 

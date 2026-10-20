@@ -1,6 +1,6 @@
 {
   "name": "@hualiong/dsh-plugin-suite",
-  "version": "1.4.0",
+  "version": "1.4.1",
   "description": "One installable DSH bundle with four independent plugins: the MCP Manager panel (which also drives the OAuth-enabled Streamable HTTP MCP client bridge), the Session Delete UI, the QQ bot bridge, and the per-model session cost meter.",
   "type": "module",
   "license": "MIT",
@@ -30,7 +30,7 @@
     "@hualiong/dsh-cost-lite": "^0.1.3",
     "@hualiong/dsh-mcp-manager": "^0.1.7",
     "@hualiong/dsh-oauth-mcp-client": "^0.1.1",
-    "@hualiong/dsh-qq-bot": "^0.4.0",
+    "@hualiong/dsh-qq-bot": "^0.4.1",
     "@hualiong/dsh-session-delete": "^0.4.1"
   },
   "repository": {

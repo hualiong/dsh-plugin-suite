@@ -18,8 +18,8 @@ importers:
         specifier: ^0.1.1
         version: 0.1.1(@deepseek-ai/cordis@4.0.4)
       '@hualiong/dsh-qq-bot':
-        specifier: ^0.4.0
-        version: 0.4.0
+        specifier: ^0.4.1
+        version: 0.4.1
       '@hualiong/dsh-session-delete':
         specifier: ^0.4.1
         version: 0.4.1(@deepseek-ai/cordis@4.0.4)(@deepseek-ai/schemastery@3.18.4)
@@ -78,8 +78,8 @@ packages:
       '@deepseek-ai/dsh-tools':
         optional: true
 
-  '@hualiong/dsh-qq-bot@0.4.0':
-    resolution: {integrity: sha512-k20NN1x8pf6I92VUsVWRvUBo04lOyZxX9KSiCfikSIgFkqn95KB5OWUhrdbh3OkG3bCibqHyes8Nhg+RC6amRw==}
+  '@hualiong/dsh-qq-bot@0.4.1':
+    resolution: {integrity: sha512-k1FQqZUcf7840bMxHdPNCQkiE3uXQYJXBtk1bJFR81nd5cznqZIhOrW5vGvwxCgAl5WfVfo6v0OXKN+Kxvyivg==}
     engines: {node: '>=20'}
 
   '@hualiong/dsh-session-delete@0.4.1':
@@ -647,7 +647,7 @@ snapshots:
       - '@cfworker/json-schema'
       - supports-color
 
-  '@hualiong/dsh-qq-bot@0.4.0':
+  '@hualiong/dsh-qq-bot@0.4.1':
     dependencies:
       '@deepseek-ai/schemastery': 3.18.4
       '@tencent-connect/qqbot-connector': 1.2.0
