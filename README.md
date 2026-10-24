@@ -185,7 +185,7 @@ DSH 读取显示元数据的方式是：先把 `${包名}/locale/en.json` 当作
 | `@hualiong/dsh-session-delete` | **已发布 `0.4.1`**（`0.3.3`～`0.4.0` 为历史版本） | `publish.yml` 的 npm trusted publishing（OIDC）；CI run `39125375353`（`0.4.1`）成功（带 provenance） |
 | `@hualiong/dsh-qq-bot` | **已发布 `0.4.2`**（`0.4.0` 为手工发布；`0.4.1`、`0.3.x` 为历史版本，`0.3.x` 的旧名是 `dsh-qq-lite`，只有 `qq` 渠道） | `publish.yml` 的 npm trusted publishing（OIDC）；CI run `40089529134`（`0.4.2`）成功（带 provenance） |
 | `@hualiong/dsh-cost-lite` | **已发布 `0.2.1`**（`0.1.1`～`0.1.3` 为历史版本；独立仓库 `hualiong/dsh-cost-lite`） | `publish.yml` 的 npm trusted publishing（OIDC）；CI run `40009226602`（`0.2.1`）成功（带 provenance） |
-| `@hualiong/dsh-plugin-suite` | **已发布 `1.4.0`**（`1.1.0`、`1.1.1`、`1.2.1`、`1.3.0`、`1.3.1`、`1.3.2`、`1.3.3` 为历史版本；`1.2.0` 曾误发并撤回） | `publish.yml` 的 npm trusted publishing（OIDC）；CI run `39129448891`（`1.4.0`）成功（带 provenance，`logIndex=3311439790`） |
+| `@hualiong/dsh-plugin-suite` | **已发布 `1.4.2`**（`1.1.0`、`1.1.1`、`1.2.1`、`1.3.0`、`1.3.1`、`1.3.2`、`1.3.3`、`1.4.0`、`1.4.1` 为历史版本；`1.2.0` 曾误发并撤回） | `publish.yml` 的 npm trusted publishing（OIDC）；CI run `40090102415`（`1.4.2`）成功（带 provenance） |
 
 六个包的 workflow 现在**都是 OIDC 路线**（无任何 secret，`gh secret list` 均为空）；`@hualiong/dsh-qq-bot` 的 `publish.yml` 是 `0.4.1` 时照下面这段补上的：
 
