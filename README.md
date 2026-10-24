@@ -48,7 +48,7 @@ dsh plugin --profile desktop add @hualiong/dsh-plugin-suite
 ```jsonc
 {
   "dependencies": {
-    "@hualiong/dsh-plugin-suite": "^1.4.1"
+    "@hualiong/dsh-plugin-suite": "^1.4.2"
   },
   "dsh": { "profile": { "bundles": [ /* …, */ "@hualiong/dsh-plugin-suite" ] } }
 }
@@ -176,15 +176,15 @@ DSH 读取显示元数据的方式是：先把 `${包名}/locale/en.json` 当作
 
 ## 发布（npm）
 
-六个包的 registry 现状（查询于 2026-10-18）：
+六个包的 registry 现状（查询于 2026-10-24）：
 
 | 包 | registry | 发布方式 |
 | --- | --- | --- |
 | `@hualiong/dsh-mcp-manager` | **已发布 `0.1.7`**（`0.1.5`、`0.1.6` 为历史版本） | `publish.yml` 的 npm trusted publishing（OIDC） |
 | `@hualiong/dsh-oauth-mcp-client` | **已发布 `0.1.1`**（`0.1.0` 为历史版本） | `publish.yml` 的 npm trusted publishing（OIDC）；CI run `38121182396` 成功 |
 | `@hualiong/dsh-session-delete` | **已发布 `0.4.1`**（`0.3.3`～`0.4.0` 为历史版本） | `publish.yml` 的 npm trusted publishing（OIDC）；CI run `39125375353`（`0.4.1`）成功（带 provenance） |
-| `@hualiong/dsh-qq-bot` | **已发布 `0.4.1`**（`0.4.0` 为手工发布；`0.3.x` 的旧名是 `dsh-qq-lite`，只有 `qq` 渠道） | `publish.yml` 的 npm trusted publishing（OIDC）；CI run `39441012748`（`0.4.1`）成功（带 provenance） |
-| `@hualiong/dsh-cost-lite` | **已发布 `0.1.3`**（`0.1.1`、`0.1.2` 为历史版本；独立仓库 `hualiong/dsh-cost-lite`） | `publish.yml` 的 npm trusted publishing（OIDC）；CI run `38762163863` 成功（带 provenance，`logIndex=3265974642`） |
+| `@hualiong/dsh-qq-bot` | **已发布 `0.4.2`**（`0.4.0` 为手工发布；`0.4.1`、`0.3.x` 为历史版本，`0.3.x` 的旧名是 `dsh-qq-lite`，只有 `qq` 渠道） | `publish.yml` 的 npm trusted publishing（OIDC）；CI run `40089529134`（`0.4.2`）成功（带 provenance） |
+| `@hualiong/dsh-cost-lite` | **已发布 `0.2.1`**（`0.1.1`～`0.1.3` 为历史版本；独立仓库 `hualiong/dsh-cost-lite`） | `publish.yml` 的 npm trusted publishing（OIDC）；CI run `40009226602`（`0.2.1`）成功（带 provenance） |
 | `@hualiong/dsh-plugin-suite` | **已发布 `1.4.0`**（`1.1.0`、`1.1.1`、`1.2.1`、`1.3.0`、`1.3.1`、`1.3.2`、`1.3.3` 为历史版本；`1.2.0` 曾误发并撤回） | `publish.yml` 的 npm trusted publishing（OIDC）；CI run `39129448891`（`1.4.0`）成功（带 provenance，`logIndex=3311439790`） |
 
 六个包的 workflow 现在**都是 OIDC 路线**（无任何 secret，`gh secret list` 均为空）；`@hualiong/dsh-qq-bot` 的 `publish.yml` 是 `0.4.1` 时照下面这段补上的：
@@ -212,8 +212,8 @@ gh auth setup-git                                    # 让 git push 用 gh 的�
 git -C dsh-session-delete tag v0.4.1                 # 先发组件：tag 必须等于 package.json 的 version，CI 会校验
 git -C dsh-session-delete push origin main v0.4.1
 
-git -C dsh-plugin-suite tag v1.4.0                   # 再发套件（它的依赖范围指向刚发的 ^0.4.1 与已发的 qq-bot ^0.4.0）
-git -C dsh-plugin-suite push origin main v1.4.0
+git -C dsh-plugin-suite tag v1.4.2                   # 再发套件（它的依赖范围指向已发的 qq-bot ^0.4.2、cost-lite ^0.2.1 与 session-delete ^0.4.1）
+git -C dsh-plugin-suite push origin main v1.4.2
 
 gh run watch --repo hualiong/dsh-plugin-suite $(gh run list --repo hualiong/dsh-plugin-suite --limit 1 --json databaseId -q '.[0].databaseId')
 ```
@@ -223,6 +223,13 @@ gh run watch --repo hualiong/dsh-plugin-suite $(gh run list --repo hualiong/dsh-
 命令行等价物 `npm trust github <包名> --file publish.yml --repo hualiong/<repo> --allow-publish` 也可，
 但它属于账号变更操作、**必须交互式 2FA**（bypass-2FA token 会被 npm 拒绝），只能由账号主人执行一次。
 绑定好之后**不要再配 `NPM_TOKEN` secret**，也不要把 bypass-2FA token 交给 CI。
+
+`1.4.2` 的内容变化：
+
+* 依赖 `@hualiong/dsh-qq-bot` 升到 `^0.4.2`：QQ 侧这一版把 SDK 升到 `@tencent-connect/qqbot-nodejs@1.0.5`（新增 `disconnected` 断线事件，`/status` 能显示断线原因），提问转发支持**按钮作答**（按钮点按与回复序号走同一条路径、回执 `0/3/4` 语义化、作答后撤回提问消息），最终答复可选**流式输出**（默认关闭，设置页单独一张卡片），指令面板项与 `/new`、`/rebind` 合并为 **`/bind`**（`/bind` 列表、`/bind <ID>` 换绑、`/bind new` 新建），失败通知改用 Markdown 引用块。套件的 `cordis.patch.yml` / locale / 文案层没有改动——组件升级按规则也是一次发包，末位 +1。
+* 依赖 `@hualiong/dsh-cost-lite` 升到 `^0.2.1`：会话徽标改成**整棵 subagent 树**的口径（`0.1.3` 只按整轮 assistant 消息统计）。
+* `pnpm-workspace.yaml` 补 `@hualiong/dsh-qq-bot@0.4.2`、`@hualiong/dsh-cost-lite@0.2.1`、`@hualiong/dsh-plugin-suite@1.4.2`
+  三条 `minimumReleaseAgeExclude`；`pnpm-lock.yaml` 已刷新（qq-bot `0.4.2`、cost-lite `0.2.1`、session-delete 保持 `0.4.1`）。
 
 `1.4.1` 的内容变化：
 

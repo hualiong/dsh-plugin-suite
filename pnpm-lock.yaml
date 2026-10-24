@@ -9,8 +9,8 @@ importers:
   .:
     dependencies:
       '@hualiong/dsh-cost-lite':
-        specifier: ^0.1.3
-        version: 0.1.3
+        specifier: ^0.2.1
+        version: 0.2.1
       '@hualiong/dsh-mcp-manager':
         specifier: ^0.1.7
         version: 0.1.7
@@ -18,8 +18,8 @@ importers:
         specifier: ^0.1.1
         version: 0.1.1(@deepseek-ai/cordis@4.0.4)
       '@hualiong/dsh-qq-bot':
-        specifier: ^0.4.1
-        version: 0.4.1
+        specifier: ^0.4.2
+        version: 0.4.2
       '@hualiong/dsh-session-delete':
         specifier: ^0.4.1
         version: 0.4.1(@deepseek-ai/cordis@4.0.4)(@deepseek-ai/schemastery@3.18.4)
@@ -55,8 +55,8 @@ packages:
     peerDependencies:
       hono: ^4
 
-  '@hualiong/dsh-cost-lite@0.1.3':
-    resolution: {integrity: sha512-UGwSiTwoAB0UMeTSJCV9rRHOP6wue5X03CIY6br565dYkA4+Ap8/JwpLgkSDOlJmoJC4c+U19cx/qGdPsaaFdQ==}
+  '@hualiong/dsh-cost-lite@0.2.1':
+    resolution: {integrity: sha512-Hwp+H6a07jnunFkgmv6iBHjvsgETlZLFiNx3uzGVpcQ6Jyba51SbtoMhwsjvF5KP+itgkYs8z5W+sGMtYwnLUQ==}
     engines: {node: '>=20'}
 
   '@hualiong/dsh-mcp-manager@0.1.7':
@@ -78,8 +78,8 @@ packages:
       '@deepseek-ai/dsh-tools':
         optional: true
 
-  '@hualiong/dsh-qq-bot@0.4.1':
-    resolution: {integrity: sha512-k1FQqZUcf7840bMxHdPNCQkiE3uXQYJXBtk1bJFR81nd5cznqZIhOrW5vGvwxCgAl5WfVfo6v0OXKN+Kxvyivg==}
+  '@hualiong/dsh-qq-bot@0.4.2':
+    resolution: {integrity: sha512-arTS+H9MXIPyvHRXWhsEcEmZefH7F077xeMyeAvhs8AWhyx69LRlPmlkhUNwQwPNgM4oWkYFEtBiJKh626+E7A==}
     engines: {node: '>=20'}
 
   '@hualiong/dsh-session-delete@0.4.1':
@@ -111,9 +111,9 @@ packages:
     resolution: {integrity: sha512-FAOUCvgxP4M9UiYbHrtVgJ7BavSlh1CHJPjeEQuTAkP9MZ91lX4yATqv6I/lB9yp15nVq+G2DaGSSJwQTSoSsA==}
     engines: {node: '>=18.0.0'}
 
-  '@tencent-connect/qqbot-nodejs@1.0.4':
-    resolution: {integrity: sha512-gU5HySLplczZXMUjM7NtiUACY7YfX9YlI/R9PKzCLMgLmHvwsX9L2sitsrYPMentGUr9b8NLfSaSTsndF77NBA==}
-    engines: {node: '>=18'}
+  '@tencent-connect/qqbot-nodejs@1.0.5':
+    resolution: {integrity: sha512-OAPGoZTtG3soI79lGNQ4YqdAe9xy+lYatUfzZyBPmjaRjH0uLjFeImffMlGVSmhfaM/wJQSIA2g1uZv3eorTRg==}
+    engines: {node: '>=20'}
     peerDependencies:
       mpg123-decoder: ^1.0.3
       silk-wasm: ^3.7.1
@@ -631,7 +631,7 @@ snapshots:
     dependencies:
       hono: 4.13.13
 
-  '@hualiong/dsh-cost-lite@0.1.3': {}
+  '@hualiong/dsh-cost-lite@0.2.1': {}
 
   '@hualiong/dsh-mcp-manager@0.1.7':
     dependencies:
@@ -647,11 +647,11 @@ snapshots:
       - '@cfworker/json-schema'
       - supports-color
 
-  '@hualiong/dsh-qq-bot@0.4.1':
+  '@hualiong/dsh-qq-bot@0.4.2':
     dependencies:
       '@deepseek-ai/schemastery': 3.18.4
       '@tencent-connect/qqbot-connector': 1.2.0
-      '@tencent-connect/qqbot-nodejs': 1.0.4
+      '@tencent-connect/qqbot-nodejs': 1.0.5
       qrcode: 1.5.4
     transitivePeerDependencies:
       - bufferutil
@@ -695,7 +695,7 @@ snapshots:
     dependencies:
       qrcode-terminal: 0.12.0
 
-  '@tencent-connect/qqbot-nodejs@1.0.4':
+  '@tencent-connect/qqbot-nodejs@1.0.5':
     dependencies:
       ws: 8.22.0
     transitivePeerDependencies:
